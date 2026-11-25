@@ -1,17 +1,25 @@
 # RPG Maker MV/MZ Cheat Toolkit
 
-A small cheat window for RPG Maker MV and MZ games, with a GUI installer.
+A small cheat window for RPG Maker MV and MZ games, with a game launcher that installs it for you.
 
-## Install
+## Launcher
 
 1. Download `rmc-toolkit.exe` from the releases page and open it.
-2. Drop your game folder (or its exe) on the window, or click **Browse**.
-3. Click **Install**.
-4. Start the game and press **Ctrl+C**, or click the **RMC** button in the corner.
+2. Drop your game folders on the window, or click **Find games** to search a folder.
+3. Open a game, click **Install cheats**, then **Play**.
+4. In the game, press **Ctrl+C** or click the **RMC** button in the corner.
 
-**Uninstall** in the same window puts the game's original files back. Games that are packed into a single file are not supported.
+The launcher also:
 
-The installer needs WebView2, which is part of Windows 11 and of updated Windows 10.
+- shows your games with their own title art, favorites, search, filters and sorting
+- starts games and tracks playtime
+- updates the cheats in every game at once, and repairs them after a game update
+- backs up saves before you play, and restores them when you need it
+- warns when a game's engine is too old, and shows errors the cheat window reported
+
+**Remove cheats** puts the game's original files back. Games that are packed into a single file are not supported.
+
+The launcher needs WebView2, which is part of Windows 11 and of updated Windows 10. Save backups are kept in `%LOCALAPPDATA%\dev.kidix.rmc-toolkit\backups`.
 
 ### Manual install
 
@@ -57,15 +65,15 @@ Requires NW.js 0.29 or newer, which ships with MV 1.6 and every MZ version.
 
 ## Development
 
-Needs [Bun](https://bun.sh). The installer also needs [Rust](https://rustup.rs).
+Needs [Bun](https://bun.sh). The launcher also needs [Rust](https://rustup.rs).
 
 ```sh
 bun install
 bun dev                  # Cheat window with a mock game
 bun run check            # Format, lint, types and unit tests
 bun run build:overlay    # dist/cheat.js
-bun run dev:installer    # Installer with hot reload
-bun run build:installer  # src-tauri/target/release/rmc-toolkit.exe
+bun run dev:launcher     # Launcher with hot reload
+bun run build:launcher   # src-tauri/target/release/rmc-toolkit.exe
 ```
 
 Rust tests: `cargo test` in `src-tauri`, after `bun run build:overlay`.
