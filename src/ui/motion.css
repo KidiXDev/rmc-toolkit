@@ -1,0 +1,246 @@
+@keyframes rmc-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92, 0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.01, 1.05);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes rmc-pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96, 0.6);
+  }
+}
+
+@keyframes rmc-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes rmc-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rmc-page-in {
+  0% {
+    opacity: 0;
+    transform: translateX(22px) skewX(-2deg);
+  }
+  65% {
+    opacity: 1;
+    transform: translateX(-3px) skewX(0.4deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes rmc-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes rmc-window-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.86, 0.7) rotate(-1.5deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02, 1.03) rotate(0.3deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes rmc-window-out {
+  to {
+    opacity: 0;
+    transform: scale(0.94, 0.6);
+  }
+}
+
+@keyframes rmc-badge-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-12deg);
+  }
+  70% {
+    transform: scale(1.12) rotate(3deg);
+  }
+}
+
+@keyframes rmc-star {
+  0% {
+    transform: scale(0.5) rotate(-40deg);
+  }
+  60% {
+    transform: scale(1.35) rotate(12deg);
+  }
+}
+
+@keyframes rmc-shake {
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes rmc-toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(-16px) scale(0.9);
+  }
+}
+
+@keyframes rmc-tick {
+  from {
+    stroke-dashoffset: 30;
+  }
+}
+
+.pop-enter-active .pop-body {
+  animation: rmc-pop-in var(--rmc-time-base) var(--rmc-ease-out);
+}
+
+.pop-leave-active .pop-body {
+  animation: rmc-pop-out var(--rmc-time-quick) var(--rmc-ease-in) forwards;
+}
+
+.pop-leave-active {
+  pointer-events: none;
+}
+
+.pop-enter-active .pop-row {
+  animation: rmc-row-in var(--rmc-time-base) var(--rmc-ease-out) backwards;
+  animation-delay: calc(var(--row) * 22ms + 30ms);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--rmc-time-quick);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.page-enter-active {
+  animation: rmc-page-in var(--rmc-time-slow) var(--rmc-ease-out);
+}
+
+.page-leave-active {
+  transition: opacity 70ms linear;
+}
+
+.page-leave-to {
+  opacity: 0;
+}
+
+.panel-in {
+  animation: rmc-panel-in var(--rmc-time-base) var(--rmc-ease-out);
+}
+
+.window-enter-active .window-body {
+  animation: rmc-window-in var(--rmc-time-slow) var(--rmc-ease-out);
+}
+
+.window-leave-active .window-body {
+  animation: rmc-window-out var(--rmc-time-quick) var(--rmc-ease-in) forwards;
+}
+
+.window-leave-active {
+  pointer-events: none;
+}
+
+.badge-enter-active {
+  animation: rmc-badge-in var(--rmc-time-slow) var(--rmc-ease-out);
+}
+
+.badge-leave-active {
+  transition: opacity var(--rmc-time-quick);
+}
+
+.badge-leave-to {
+  opacity: 0;
+}
+
+.toast-enter-active {
+  animation: rmc-fade-in var(--rmc-time-quick);
+}
+
+.toast-leave-active {
+  animation: rmc-toast-out var(--rmc-time-base) var(--rmc-ease-in) forwards;
+}
+
+.toast-move,
+.shelf-move,
+.rows-move {
+  transition: transform var(--rmc-time-slow) var(--rmc-ease-pop);
+}
+
+.shelf-enter-active,
+.rows-enter-active {
+  animation: rmc-panel-in var(--rmc-time-base) var(--rmc-ease-out) backwards;
+  animation-delay: calc(var(--order, 0) * 24ms);
+}
+
+.shelf-leave-active,
+.rows-leave-active {
+  display: none;
+}
+
+.fx-star {
+  animation: rmc-star var(--rmc-time-slow) var(--rmc-ease-out);
+}
+
+.fx-shake {
+  animation: rmc-shake 90ms linear 2;
+}
+
+.fx-tick {
+  stroke-dasharray: 30;
+  animation: rmc-tick var(--rmc-time-base) var(--rmc-ease-out);
+}
+
+.smooth {
+  transition:
+    background-color var(--rmc-time-quick),
+    border-color var(--rmc-time-quick),
+    color var(--rmc-time-quick),
+    box-shadow var(--rmc-time-quick),
+    opacity var(--rmc-time-quick);
+}
+
+.rmc-root[data-motion='off'] *,
+.rmc-root[data-motion='off'] *::before,
+.rmc-root[data-motion='off'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmc-root *,
+  .rmc-root *::before,
+  .rmc-root *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

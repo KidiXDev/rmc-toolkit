@@ -26,6 +26,12 @@
   --rmc-shadow-hover: 3px 4px 0 var(--rmc-soft);
   --rmc-shadow-window: 6px 7px 0 var(--rmc-soft);
 
+  --rmc-time-quick: 120ms;
+  --rmc-time-base: 220ms;
+  --rmc-time-slow: 340ms;
+  --rmc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --rmc-ease-in: cubic-bezier(0.5, 0, 0.9, 0.3);
+  --rmc-ease-pop: cubic-bezier(0.3, 1.6, 0.5, 1);
 
   --rmc-font-body:
     -apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', 'Yu Gothic UI', system-ui, sans-serif;

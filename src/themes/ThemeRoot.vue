@@ -51,6 +51,7 @@ onBeforeUnmount(() => unmountEffects?.())
     :class="{ 'rmc-keyboard': usesKeyboard }"
     :data-theme="theme.id"
     :data-mode="shownMode"
+    :data-motion="effects ? 'on' : 'off'"
     @keydown.capture="onKeyDown"
     @mousedown.capture="onMouseDown"
   >
