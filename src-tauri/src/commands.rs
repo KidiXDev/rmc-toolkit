@@ -1,24 +1,23 @@
 use std::fs;
-use std::path::{Path, PathBuf};
-use std::thread;
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::ipc::Response;
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, State};
 
 use crate::covers;
-use crate::error::{AtPath, Result};
+use crate::desktop;
+use crate::error::{AtPath, Error, Result};
 use crate::files::now_millis;
 use crate::game::{Engine, Game};
 use crate::launcher::Launcher;
-use crate::library::Entry;
+use crate::library::{Entry, PlayStatus};
 use crate::patcher::{self, InstallState};
-use crate::process;
 use crate::saves::{Backup, BackupKind};
 use crate::scan;
+use crate::tracker::Session;
 
-const LIBRARY_CHANGED: &str = "library-changed";
 const ERROR_LOG: &str = "rmc-errors.json";
 
 #[derive(Serialize)]
@@ -43,9 +42,12 @@ pub struct GameInfo {
     status: CheatStatus,
     cheat_version: Option<String>,
     executable: Option<PathBuf>,
-    is_running: bool,
     favorite: bool,
-    play_seconds: u64,
+    arguments: String,
+    play_status: PlayStatus,
+    notes: String,
+    play_ms: u64,
+    session: Option<Session>,
     last_played: Option<u64>,
     added_at: u64,
     cover_key: String,
@@ -87,8 +89,9 @@ fn describe(launcher: &Launcher, entry: Entry) -> GameInfo {
     let default_title = game
         .as_ref()
         .map(Game::title)
-        .or_else(|| entry.known_title.clone())
-        .unwrap_or_else(|| folder_name(&entry.content));
+        .unwrap_or_else(|| entry.known_name());
+
+    let session = launcher.running_session(&entry.id);
 
     GameInfo {
         path: game
@@ -109,26 +112,17 @@ fn describe(launcher: &Launcher, entry: Entry) -> GameInfo {
         executable: game
             .as_ref()
             .and_then(|game| launcher.executable(&entry, game)),
-        is_running: launcher.is_running(&entry.id),
         favorite: entry.favorite,
-        play_seconds: entry.play_seconds,
+        arguments: entry.arguments,
+        play_status: entry.play_status,
+        notes: entry.notes,
+        play_ms: entry.play_ms + session.as_ref().map_or(0, |session| session.played_ms),
+        session,
         last_played: entry.last_played,
         added_at: entry.added_at,
         cover_key: format!("{}-{}", entry.id, entry.cover_changed_at.unwrap_or(0)),
         id: entry.id,
     }
-}
-
-fn folder_name(path: &Path) -> String {
-    let is_www = path
-        .file_name()
-        .is_some_and(|name| name.eq_ignore_ascii_case("www"));
-    let folder = path.parent().filter(|_| is_www).unwrap_or(path);
-    folder
-        .file_name()
-        .unwrap_or(folder.as_os_str())
-        .to_string_lossy()
-        .into_owned()
 }
 
 #[tauri::command]
@@ -182,6 +176,9 @@ pub async fn find_games(launcher: State<'_, Launcher>, path: PathBuf) -> Result<
 
 #[tauri::command]
 pub async fn remove_game(launcher: State<'_, Launcher>, id: String) -> Result<()> {
+    if launcher.is_running(&id) {
+        return Err(Error::GameIsRunning);
+    }
     launcher.library().remove(&id)?;
     covers::set_custom(&launcher.cover_path(&id), None)
 }
@@ -266,30 +263,65 @@ pub async fn cheat_errors(launcher: State<'_, Launcher>, id: String) -> Result<V
 }
 
 #[tauri::command]
+pub async fn list_sessions(launcher: State<'_, Launcher>) -> Result<Vec<Session>> {
+    Ok(launcher.past_sessions())
+}
+
+#[tauri::command]
+pub async fn set_arguments(
+    launcher: State<'_, Launcher>,
+    id: String,
+    arguments: String,
+) -> Result<()> {
+    launcher
+        .library()
+        .update(&id, |entry| entry.arguments = arguments)
+}
+
+#[tauri::command]
+pub async fn set_play_status(
+    launcher: State<'_, Launcher>,
+    id: String,
+    status: PlayStatus,
+) -> Result<()> {
+    launcher
+        .library()
+        .update(&id, |entry| entry.play_status = status)
+}
+
+#[tauri::command]
+pub async fn set_notes(launcher: State<'_, Launcher>, id: String, notes: String) -> Result<()> {
+    launcher.library().update(&id, |entry| entry.notes = notes)
+}
+
+#[tauri::command]
+pub async fn set_stays_in_tray(launcher: State<'_, Launcher>, stays: bool) -> Result<()> {
+    launcher.set_stays_in_tray(stays);
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn play_game(
     app: AppHandle,
     launcher: State<'_, Launcher>,
     id: String,
     backup_first: bool,
 ) -> Result<()> {
-    let game = launcher.idle_game(&id)?;
-    let entry = launcher.entry(&id)?;
-    let executable = launcher
-        .executable(&entry, &game)
-        .ok_or(crate::error::Error::NoExecutable)?;
     if backup_first {
+        let game = launcher.idle_game(&id)?;
         launcher
             .vault(&game, &id)
             .create_if_changed(BackupKind::BeforePlay)?;
     }
+    launcher.start(&id)?;
+    desktop::refresh_tray(&app);
+    Ok(())
+}
 
-    let mut child = process::start(&executable)?;
-    launcher.start_session(&id)?;
-    thread::spawn(move || {
-        let _ = child.wait();
-        let _ = app.state::<Launcher>().end_session(&id);
-        let _ = app.emit(LIBRARY_CHANGED, ());
-    });
+#[tauri::command]
+pub async fn stop_game(launcher: State<'_, Launcher>, id: String) -> Result<()> {
+    launcher.entry(&id)?;
+    launcher.stop(&id);
     Ok(())
 }
 

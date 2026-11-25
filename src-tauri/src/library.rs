@@ -6,9 +6,21 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
 use crate::files::now_millis;
+use crate::game::{name_of, root_of};
 
 const FNV_OFFSET: u64 = 0xcbf2_9ce4_8422_2325;
 const FNV_PRIME: u64 = 0x0100_0000_01b3;
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum PlayStatus {
+    #[default]
+    Unsorted,
+    Planned,
+    Playing,
+    Finished,
+    Dropped,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -22,9 +34,15 @@ pub struct Entry {
     #[serde(default)]
     pub executable: Option<PathBuf>,
     #[serde(default)]
-    pub favorite: bool,
+    pub arguments: String,
     #[serde(default)]
-    pub play_seconds: u64,
+    pub play_status: PlayStatus,
+    #[serde(default)]
+    pub notes: String,
+    #[serde(default)]
+    pub favorite: bool,
+    #[serde(default, rename = "playSeconds", with = "whole_seconds")]
+    pub play_ms: u64,
     #[serde(default)]
     pub last_played: Option<u64>,
     #[serde(default)]
@@ -41,26 +59,52 @@ impl Entry {
             known_title,
             custom_title: None,
             executable: None,
+            arguments: String::new(),
+            play_status: PlayStatus::default(),
+            notes: String::new(),
             favorite: false,
-            play_seconds: 0,
+            play_ms: 0,
             last_played: None,
             added_at: now_millis(),
             cover_changed_at: None,
         }
+    }
+
+    pub fn root(&self) -> &Path {
+        root_of(&self.content)
+    }
+
+    pub fn known_name(&self) -> String {
+        self.custom_title
+            .clone()
+            .or_else(|| self.known_title.clone())
+            .unwrap_or_else(|| name_of(self.root()))
+    }
+}
+
+mod whole_seconds {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S: Serializer>(millis: &u64, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_f64(*millis as f64 / 1000.0)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<u64, D::Error> {
+        Ok((f64::deserialize(deserializer)? * 1000.0) as u64)
     }
 }
 
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum StoredEntry {
-    Entry(Entry),
+    Entry(Box<Entry>),
     Path(PathBuf),
 }
 
 impl From<StoredEntry> for Entry {
     fn from(stored: StoredEntry) -> Self {
         match stored {
-            StoredEntry::Entry(entry) => entry,
+            StoredEntry::Entry(entry) => *entry,
             StoredEntry::Path(path) => Self::new(&path, None),
         }
     }
@@ -198,7 +242,22 @@ mod tests {
         let library = library_in(&temp);
 
         assert_eq!(library.entries().len(), 1);
-        assert_eq!(library.entries()[0].play_seconds, 0);
+        assert_eq!(library.entries()[0].play_ms, 0);
+    }
+
+    #[test]
+    fn keeps_playtime_saved_by_older_versions() {
+        let temp = TempFolder::new();
+        temp.write(
+            "games.json",
+            br#"[{"id":"a","content":"D:/Moon/www","playSeconds":90}]"#,
+        );
+        let mut library = library_in(&temp);
+        assert_eq!(library.get("a").unwrap().play_ms, 90_000);
+        assert_eq!(library.get("a").unwrap().known_name(), "Moon");
+
+        library.update("a", |entry| entry.play_ms += 1_500).unwrap();
+        assert_eq!(library_in(&temp).get("a").unwrap().play_ms, 91_500);
     }
 
     #[test]

@@ -67,14 +67,7 @@ impl Game {
     }
 
     pub fn root(&self) -> &Path {
-        let is_www = self
-            .content
-            .file_name()
-            .is_some_and(|name| name.eq_ignore_ascii_case("www"));
-        match self.content.parent() {
-            Some(parent) if is_www => parent,
-            _ => &self.content,
-        }
+        root_of(&self.content)
     }
 
     pub fn main_script(&self) -> PathBuf {
@@ -94,13 +87,8 @@ impl Game {
     }
 
     pub fn title(&self) -> String {
-        self.system_text("gameTitle").unwrap_or_else(|| {
-            let root = self.root();
-            root.file_name()
-                .unwrap_or(root.as_os_str())
-                .to_string_lossy()
-                .into_owned()
-        })
+        self.system_text("gameTitle")
+            .unwrap_or_else(|| name_of(self.root()))
     }
 
     pub fn title_image(&self) -> Option<PathBuf> {
@@ -169,6 +157,27 @@ impl Game {
     }
 }
 
+pub fn root_of(content: &Path) -> &Path {
+    let is_www = content
+        .file_name()
+        .is_some_and(|name| name.eq_ignore_ascii_case("www"));
+    content.parent().filter(|_| is_www).unwrap_or(content)
+}
+
+pub fn name_of(folder: &Path) -> String {
+    folder
+        .file_name()
+        .unwrap_or(folder.as_os_str())
+        .to_string_lossy()
+        .into_owned()
+}
+
+pub fn is_helper_program(path: &Path) -> bool {
+    path.file_stem()
+        .map(|stem| stem.to_string_lossy().to_lowercase())
+        .is_some_and(|stem| HELPER_PROGRAMS.contains(&stem.as_str()))
+}
+
 fn is_game_program(path: &Path) -> bool {
     let stem = path
         .file_stem()
@@ -180,7 +189,7 @@ fn is_game_program(path: &Path) -> bool {
     } else {
         stem == "nw"
     };
-    is_program && path.is_file() && !HELPER_PROGRAMS.contains(&stem.as_str())
+    is_program && path.is_file() && !is_helper_program(path)
 }
 
 fn missing_game_error(folder: &Path) -> Error {

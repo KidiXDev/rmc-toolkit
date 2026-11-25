@@ -16,6 +16,7 @@ pub enum Error {
     GameIsRunning,
     UnsupportedCover,
     Launch(io::Error),
+    NeedsElevation,
     Library(String),
     File { path: PathBuf, source: io::Error },
 }
@@ -46,7 +47,10 @@ impl fmt::Display for Error {
                 formatter,
                 "Choose a PNG, JPG or WebP image smaller than 10 MB."
             ),
-            Self::Launch(source) => write!(formatter, "{}", explain_launch(source)),
+            Self::Launch(source) => write!(formatter, "The game could not start: {source}"),
+            Self::NeedsElevation => {
+                write!(formatter, "This game asks for administrator rights.")
+            }
             Self::Library(reason) => {
                 write!(formatter, "The library could not be saved: {reason}")
             }
@@ -61,14 +65,6 @@ impl Serialize for Error {
     fn serialize<S: Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         serializer.collect_str(self)
     }
-}
-
-fn explain_launch(source: &io::Error) -> String {
-    const ELEVATION_REQUIRED: i32 = 740;
-    if cfg!(windows) && source.raw_os_error() == Some(ELEVATION_REQUIRED) {
-        return "This game asks for administrator rights. Start it from its own folder.".to_owned();
-    }
-    format!("The game could not start: {source}")
 }
 
 fn explain_file(path: &Path, source: &io::Error) -> String {
