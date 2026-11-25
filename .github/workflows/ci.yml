@@ -21,7 +21,7 @@ jobs:
       - run: bun run check
       - run: bun run build:overlay
 
-  installer:
+  launcher:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
           node-version: 24
       - run: bun install --frozen-lockfile
       - run: bun run build:overlay
-      - run: bunx vite build --config vite.config.installer.ts
+      - run: bunx vite build --config vite.config.launcher.ts
       - run: cargo fmt --check
         working-directory: src-tauri
       - run: cargo clippy --all-targets -- -D warnings
