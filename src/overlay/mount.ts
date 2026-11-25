@@ -2,13 +2,14 @@ import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
 import { installCheats } from '@/cheats/install'
-import { logError } from '@/engine/errorLog'
 import { isolateFromGame } from '@/engine/inputGate'
+import { logError } from '@/engine/log'
 import { whenGameReady } from '@/engine/ready'
 import { installShortcuts } from '@/shortcuts/dispatcher'
 import { useOverlay } from '@/stores/overlay'
 
 import App from './App.vue'
+import { watchPage } from './diagnostics'
 
 import styles from '@/ui/styles.css?inline'
 
@@ -34,10 +35,11 @@ export function mountOverlay(): void {
   app.use(createPinia())
   app.config.errorHandler = (error) => {
     logError(error)
-    useOverlay().notify('Something went wrong. See rmc-errors.json.', 'error')
+    useOverlay().notify('Something went wrong. See Logs in the launcher.', 'error')
   }
   app.mount(container)
 
+  watchPage(host, root)
   isolateFromGame(host, root)
   installShortcuts(host)
   whenGameReady(installCheats)

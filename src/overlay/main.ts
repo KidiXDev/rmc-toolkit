@@ -1,14 +1,19 @@
-import { logError } from '@/engine/errorLog'
+import { logError } from '@/engine/log'
 
+import { logPageStart } from './diagnostics'
 import { mountOverlay } from './mount'
 
-function start() {
+function attempt(action: () => void) {
   try {
-    mountOverlay()
+    action()
   } catch (error) {
     logError(error)
   }
 }
+
+const start = () => attempt(mountOverlay)
+
+attempt(logPageStart)
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start)
 else start()

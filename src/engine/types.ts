@@ -161,6 +161,8 @@ interface FileSystem {
   existsSync(path: string): boolean
   mkdirSync(path: string): void
   readFileSync(path: string, encoding: 'utf8'): string
+  statSync(path: string): { size: number }
+  appendFileSync(path: string, content: string, encoding: 'utf8'): void
   writeFileSync(path: string, content: string, encoding: 'utf8'): void
   renameSync(from: string, to: string): void
 }
@@ -202,8 +204,13 @@ export interface RpgGlobals {
   Game_Actor: WithPrototype<GameActor>
   Game_Action: WithPrototype<GameAction>
   Game_Player: WithPrototype<GamePlayer>
+  $plugins: Array<{ name: string; status: boolean }>
   Window_Message: WithPrototype<{ isTriggered(): boolean }>
   require: <K extends keyof NodeModules>(name: K) => NodeModules[K]
-  process: { mainModule?: { filename: string }; versions?: Record<string, string | undefined> }
+  process: {
+    mainModule?: { filename: string }
+    versions?: Record<string, string | undefined>
+    env?: Record<string, string | undefined>
+  }
   nw: { Window: { get(): { showDevTools(): void } } }
 }

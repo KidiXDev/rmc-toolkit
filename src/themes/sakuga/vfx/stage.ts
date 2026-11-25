@@ -1,4 +1,4 @@
-import { logError } from '@/engine/errorLog'
+import { logError } from '@/engine/log'
 
 import { clamp } from './math'
 

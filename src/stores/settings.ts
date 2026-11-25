@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive, toRefs, watch } from 'vue'
 
-import { logError } from '@/engine/errorLog'
+import { logError } from '@/engine/log'
 import { createStorage } from '@/engine/storage'
 
 import { sanitizeSettings } from './sanitize'

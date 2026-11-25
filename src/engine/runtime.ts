@@ -6,6 +6,10 @@ export function isGameReady(): boolean {
   return Boolean(rpg.$dataSystem && rpg.$gameParty && rpg.$gamePlayer && rpg.SceneManager)
 }
 
+export function isDeveloperMode(): boolean {
+  return rpg.process?.env?.RMC_DEVELOPER_MODE === '1'
+}
+
 export function isInBattle(): boolean {
   return rpg.$gameParty?.inBattle() ?? false
 }
