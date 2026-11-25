@@ -36,7 +36,7 @@ function go(location: SavedLocation) {
   <div
     v-for="location in settings.locations"
     :key="location.id"
-    class="grid min-h-[30px] grid-cols-[1fr_auto_auto] items-center border-b-hairline gap-2"
+    class="grid min-h-[30px] grid-cols-[1fr_auto_auto] items-center border-b-hairline gap-2 hover:bg-panel"
   >
     <span class="truncate" :title="`${location.mapName} (${location.x}, ${location.y})`">
       {{ location.label }}

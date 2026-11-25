@@ -59,7 +59,7 @@ async function moveTab(event: KeyboardEvent) {
 
 <template>
   <div
-    class="pointer-events-auto fixed left-0 top-0 grid grid-rows-[auto_1fr] rounded-window border-outline border-ink bg-paper shadow-window"
+    class="pointer-events-auto fixed left-0 top-0"
     :style="{
       width: `${WIDTH}px`,
       height: `${HEIGHT}px`,
@@ -69,47 +69,51 @@ async function moveTab(event: KeyboardEvent) {
     role="dialog"
     aria-label="RMC Toolkit"
   >
-    <header
-      class="grid cursor-move touch-none select-none grid-cols-[1fr_auto] items-center border-b-outline border-ink px-3 py-1"
-      v-on="handlers"
+    <div
+      class="window-body grid h-full grid-rows-[auto_minmax(0,1fr)] rounded-window border-outline border-ink bg-paper shadow-window"
     >
-      <span class="font-display text-[15px] font-extrabold italic">RMC Toolkit</span>
-      <button
-        type="button"
-        class="px-1 font-extrabold"
-        aria-label="Close"
-        @pointerdown.stop
-        @click="overlay.isOpen = false"
+      <header
+        class="grid cursor-move touch-none select-none grid-cols-[1fr_auto] items-center border-b-outline border-ink px-3 py-1"
+        v-on="handlers"
       >
-        ✕
-      </button>
-    </header>
-    <div class="grid min-h-0 grid-cols-[104px_minmax(0,1fr)]">
-      <div
-        ref="tabList"
-        v-fx:tabs
-        role="tablist"
-        aria-orientation="vertical"
-        aria-label="Cheats"
-        class="relative overflow-y-auto border-r-outline border-ink py-1.5"
-        @keydown="moveTab"
-      >
+        <span class="font-display text-[15px] font-extrabold italic">RMC Toolkit</span>
         <button
-          v-for="tab in tabs"
-          :key="tab.id"
           type="button"
-          role="tab"
-          class="relative block w-full px-3 py-1 text-left"
-          :class="tab === active ? 'bg-soft font-extrabold' : 'font-semibold hover:bg-panel'"
-          :aria-selected="tab === active"
-          :tabindex="tab === active ? 0 : -1"
-          @click="overlay.activeTab = tab.id"
+          class="smooth px-1 font-extrabold hover:text-accent"
+          aria-label="Close"
+          @pointerdown.stop
+          @click="overlay.isOpen = false"
         >
-          {{ tab.label }}
+          ✕
         </button>
-      </div>
-      <div class="overflow-y-auto px-3 py-2" role="tabpanel" :aria-label="active?.label">
-        <component :is="active?.panel" :key="active?.id" />
+      </header>
+      <div class="grid min-h-0 grid-cols-[104px_minmax(0,1fr)]">
+        <div
+          ref="tabList"
+          v-fx:tabs
+          role="tablist"
+          aria-orientation="vertical"
+          aria-label="Cheats"
+          class="relative overflow-y-auto border-r-outline border-ink py-1.5"
+          @keydown="moveTab"
+        >
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            type="button"
+            role="tab"
+            class="smooth relative block w-full px-3 py-1 text-left"
+            :class="tab === active ? 'bg-soft font-extrabold' : 'font-semibold hover:bg-panel'"
+            :aria-selected="tab === active"
+            :tabindex="tab === active ? 0 : -1"
+            @click="overlay.activeTab = tab.id"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+        <div class="overflow-y-auto px-3 py-2" role="tabpanel" :aria-label="active?.label">
+          <div :key="active?.id" class="panel-in"><component :is="active?.panel" /></div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { EXTRA_IDS, SETTING_LIMITS } from '@/stores/sanitize'
 import { useSettings } from '@/stores/settings'
-import { THEMES } from '@/themes'
+import { THEMES, themeById } from '@/themes'
+import { COLOR_MODE_OPTIONS } from '@/themes/colorMode'
 import UiNumberField from '@/ui/UiNumberField.vue'
 import UiRow from '@/ui/UiRow.vue'
 import UiSection from '@/ui/UiSection.vue'
@@ -22,7 +23,10 @@ const version = __APP_VERSION__
     <UiRow label="Theme">
       <UiSelect v-model="settings.theme" label="Theme" :options="themeOptions" />
     </UiRow>
-    <UiRow label="Effects" hint="Bursts, smoke and springy motion.">
+    <UiRow v-if="themeById(settings.theme).hasDarkMode" label="Light or dark">
+      <UiSelect v-model="settings.colorMode" label="Light or dark" :options="COLOR_MODE_OPTIONS" />
+    </UiRow>
+    <UiRow label="Effects" hint="Bursts, smoke and all motion.">
       <UiToggle v-model="settings.effects" label="Effects" />
     </UiRow>
     <UiRow label="Window size">

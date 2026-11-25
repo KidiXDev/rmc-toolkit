@@ -32,7 +32,7 @@ onBeforeUnmount(cancelRecording)
   <div
     v-for="shortcut in SHORTCUTS"
     :key="shortcut.id"
-    class="grid min-h-[30px] grid-cols-[1fr_auto_auto] items-center border-b-hairline gap-2"
+    class="grid min-h-[30px] grid-cols-[1fr_auto_auto] items-center border-b-hairline gap-2 hover:bg-panel"
   >
     <span>
       {{ shortcut.label }}

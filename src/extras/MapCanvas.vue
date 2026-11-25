@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref, useTemplateRef } from 'vue'
+import { onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 
 import { rpg } from '@/engine/runtime'
 import { useOverlay } from '@/stores/overlay'
 import { useSettings } from '@/stores/settings'
+import { useShownMode } from '@/themes/themeContext'
 
 import { drawMap, tileAt, type MapColors, type MapFrame, type MapZoom } from './mapView'
 import { teleport, walkTo } from './teleport'
@@ -59,6 +60,15 @@ function moveTo(event: MouseEvent) {
     : walkTo(tile.x, tile.y)
   if (!hasMoved) overlay.notify('Moving works only on the map', 'error')
 }
+
+watch(
+  useShownMode(),
+  () => {
+    colors = undefined
+    forgetTerrain()
+  },
+  { flush: 'post' },
+)
 
 onBeforeUnmount(forgetTerrain)
 </script>

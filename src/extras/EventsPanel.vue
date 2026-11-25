@@ -31,7 +31,7 @@ function apply(change: () => void) {
         :key="letter"
         type="button"
         class="h-[18px] w-[18px] rounded-[5px] border-hairline border-ink text-center text-[10px] font-bold"
-        :class="row.selfSwitches[letter] ? 'bg-primary' : 'bg-paper'"
+        :class="row.selfSwitches[letter] ? 'bg-primary text-onfill' : 'bg-paper hover:bg-panel'"
         :aria-pressed="row.selfSwitches[letter]"
         :aria-label="`Self switch ${letter} of ${row.name}`"
         @click="apply(() => setSelfSwitch(row.id, letter, !row.selfSwitches[letter]))"
