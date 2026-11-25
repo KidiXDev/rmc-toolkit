@@ -20,5 +20,6 @@ export interface ThemeEffects {
 export interface Theme {
   id: string
   label: string
+  hasDarkMode: boolean
   effects?: ThemeEffects
 }

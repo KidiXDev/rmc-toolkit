@@ -6,19 +6,45 @@
   --rmc-line: #dcdaf0;
   --rmc-soft: #b8b3ff;
   --rmc-primary: #8f8df7;
+  --rmc-primary-hover: #a5a3ff;
   --rmc-accent: #ff5fa8;
+  --rmc-accent-hover: #ff83bc;
   --rmc-track: #c9cbe0;
   --rmc-danger: #d81b60;
+  --rmc-on-fill: #1d1a4a;
+  --rmc-chrome: #1d1a4a;
+  --rmc-chrome-hover: #343070;
+  --rmc-on-chrome: #ffffff;
+  --rmc-on-chrome-dim: #b8b3ff;
+  --rmc-scrim: rgba(29, 26, 74, 0.55);
 
   --rmc-outline: 2px;
   --rmc-hairline: 1.5px;
   --rmc-radius-control: 8px;
   --rmc-radius-window: 15px;
   --rmc-shadow-control: 2px 3px 0 var(--rmc-soft);
+  --rmc-shadow-hover: 3px 4px 0 var(--rmc-soft);
   --rmc-shadow-window: 6px 7px 0 var(--rmc-soft);
+
 
   --rmc-font-body:
     -apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', 'Yu Gothic UI', system-ui, sans-serif;
   --rmc-font-display: 'Avenir Next', Nunito, -apple-system, 'Segoe UI', system-ui, sans-serif;
   --rmc-font-mono: Consolas, 'SF Mono', Menlo, monospace;
+}
+
+[data-theme='sakuga'][data-mode='dark'] {
+  --rmc-paper: #17152f;
+  --rmc-panel: #211e42;
+  --rmc-ink: #e9e6ff;
+  --rmc-dim: #a8a3d4;
+  --rmc-line: #38346a;
+  --rmc-soft: #4b4599;
+  --rmc-track: #55517f;
+  --rmc-danger: #ff7aa2;
+  --rmc-chrome: #0e0c20;
+  --rmc-chrome-hover: #262249;
+  --rmc-on-chrome: #e9e6ff;
+  --rmc-scrim: rgba(5, 4, 16, 0.7);
+  color-scheme: dark;
 }

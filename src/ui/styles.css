@@ -24,7 +24,7 @@
 
   button,
   input,
-  select {
+  textarea {
     margin: 0;
     padding: 0;
     color: inherit;
@@ -37,8 +37,7 @@
   }
 
   button:disabled,
-  input:disabled,
-  select:disabled {
+  input:disabled {
     cursor: not-allowed;
     opacity: 0.45;
   }
@@ -53,8 +52,21 @@
     font-style: normal;
   }
 
-  input {
+  input,
+  textarea {
+    caret-color: var(--rmc-accent);
     user-select: text;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--rmc-dim);
+    opacity: 1;
+  }
+
+  ::selection {
+    background: var(--rmc-soft);
+    color: var(--rmc-ink);
   }
 
   input[type='number'] {
@@ -83,6 +95,10 @@
   ::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background: var(--rmc-track);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--rmc-dim);
   }
 }
 

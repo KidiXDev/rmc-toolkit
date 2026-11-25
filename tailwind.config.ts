@@ -25,10 +25,14 @@ export default {
       dim: 'var(--rmc-dim)',
       line: 'var(--rmc-line)',
       soft: 'var(--rmc-soft)',
-      primary: 'var(--rmc-primary)',
-      accent: 'var(--rmc-accent)',
+      primary: { DEFAULT: 'var(--rmc-primary)', hover: 'var(--rmc-primary-hover)' },
+      accent: { DEFAULT: 'var(--rmc-accent)', hover: 'var(--rmc-accent-hover)' },
       track: 'var(--rmc-track)',
       danger: 'var(--rmc-danger)',
+      onfill: 'var(--rmc-on-fill)',
+      chrome: { DEFAULT: 'var(--rmc-chrome)', hover: 'var(--rmc-chrome-hover)' },
+      onchrome: { DEFAULT: 'var(--rmc-on-chrome)', dim: 'var(--rmc-on-chrome-dim)' },
+      scrim: 'var(--rmc-scrim)',
     },
     fontFamily: {
       body: 'var(--rmc-font-body)',
@@ -44,6 +48,7 @@ export default {
     boxShadow: {
       none: 'none',
       control: 'var(--rmc-shadow-control)',
+      hover: 'var(--rmc-shadow-hover)',
       window: 'var(--rmc-shadow-window)',
     },
     extend: {

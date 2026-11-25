@@ -23,6 +23,11 @@ describe('sanitizeSettings', () => {
     expect(settings.windowX).toBe(0)
   })
 
+  it('keeps a known color mode and ignores others', () => {
+    expect(sanitizeSettings({ colorMode: 'dark' }).colorMode).toBe('dark')
+    expect(sanitizeSettings({ colorMode: 'sepia' }).colorMode).toBe('system')
+  })
+
   it('drops malformed locations and hotkeys', () => {
     const location = { id: 'a', label: 'Home', mapName: 'Town', mapId: 1, x: 2, y: 3 }
     const settings = sanitizeSettings({

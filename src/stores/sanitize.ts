@@ -1,3 +1,5 @@
+import { readColorMode, type ColorMode } from '@/themes/colorMode'
+
 export const EXTRA_IDS = ['teleport', 'locations', 'minimap', 'esp', 'events', 'hud'] as const
 export type ExtraId = (typeof EXTRA_IDS)[number]
 
@@ -15,6 +17,7 @@ export interface SavedLocation {
 
 export interface Settings {
   theme: string
+  colorMode: ColorMode
   effects: boolean
   uiScale: number
   badge: boolean
@@ -55,6 +58,7 @@ export const SETTING_LIMITS = {
 export function defaultSettings(): Settings {
   return {
     theme: 'sakuga',
+    colorMode: 'system',
     effects: true,
     uiScale: 1,
     badge: true,
@@ -133,6 +137,7 @@ export function sanitizeSettings(raw: unknown): Settings {
 
   return {
     theme: typeof raw.theme === 'string' ? raw.theme : settings.theme,
+    colorMode: readColorMode(raw.colorMode),
     effects: readBoolean(raw, 'effects', settings.effects),
     uiScale: number('uiScale'),
     badge: readBoolean(raw, 'badge', settings.badge),
