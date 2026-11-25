@@ -26,7 +26,10 @@ function newestLines(text: string, maxChars: number): string {
   return tail.slice(tail.indexOf('\n') + 1)
 }
 
-function createFileStorage({ fs, path }: NodeModules, gameFolder: string): CheatStorage {
+function createFileStorage(
+  { fs, path }: Pick<NodeModules, 'fs' | 'path'>,
+  gameFolder: string,
+): CheatStorage {
   const folder = path.join(gameFolder, SETTINGS_FOLDER)
   const fileOf = (name: string) => path.join(folder, `${name}.json`)
 
@@ -67,14 +70,18 @@ function createBrowserStorage(): CheatStorage {
   }
 }
 
-export function createStorage(): CheatStorage {
+export function createDesktopStorage(): CheatStorage | null {
   const mainFile = rpg.process?.mainModule?.filename
-  if (!rpg.require || !mainFile) return createBrowserStorage()
+  if (!rpg.require || !mainFile) return null
 
   try {
     const modules = { fs: rpg.require('fs'), path: rpg.require('path') }
     return createFileStorage(modules, modules.path.dirname(mainFile))
   } catch {
-    return createBrowserStorage()
+    return null
   }
+}
+
+export function createStorage(): CheatStorage {
+  return createDesktopStorage() ?? createBrowserStorage()
 }

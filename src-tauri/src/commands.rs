@@ -2,6 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use tauri::ipc::Response;
 use tauri::{AppHandle, State};
 
@@ -12,6 +13,7 @@ use crate::files::now_millis;
 use crate::game::{Engine, Game};
 use crate::launcher::Launcher;
 use crate::library::{Entry, PlayStatus};
+use crate::live;
 use crate::logs;
 use crate::patcher::{self, InstallState};
 use crate::saves::{Backup, BackupKind};
@@ -262,6 +264,26 @@ pub async fn game_log(launcher: State<'_, Launcher>, id: String) -> Result<Strin
         program.as_deref(),
         launcher.is_developer_mode(),
     ))
+}
+
+#[tauri::command]
+pub async fn live_game(
+    launcher: State<'_, Launcher>,
+    id: String,
+    session: Option<String>,
+    action: Option<Value>,
+    query: Option<Value>,
+) -> Result<Option<Value>> {
+    if !launcher.is_running(&id) {
+        return Ok(None);
+    }
+    let folder = launcher.game(&id)?.settings_folder();
+    Ok(tauri::async_runtime::spawn_blocking(move || {
+        live::request(&folder, session.as_deref(), action.as_ref(), query.as_ref())
+    })
+    .await
+    .ok()
+    .flatten())
 }
 
 #[tauri::command]

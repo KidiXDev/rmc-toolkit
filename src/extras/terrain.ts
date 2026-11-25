@@ -27,7 +27,7 @@ function createTerrain(map: GameMap): Terrain {
   }
 }
 
-function isWalkable(map: GameMap, x: number, y: number): boolean {
+export function isWalkable(map: GameMap, x: number, y: number): boolean {
   return DIRECTIONS.some((direction) => map.isPassable(x, y, direction))
 }
 

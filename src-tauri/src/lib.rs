@@ -7,6 +7,7 @@ mod files;
 mod game;
 mod launcher;
 mod library;
+mod live;
 mod logs;
 mod patcher;
 mod process;
@@ -66,6 +67,7 @@ pub fn run() -> tauri::Result<()> {
             commands::install_cheats,
             commands::uninstall_cheats,
             commands::game_log,
+            commands::live_game,
             commands::clear_log,
             commands::play_game,
             commands::stop_game,

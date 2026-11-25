@@ -10,6 +10,7 @@ import { useOverlay } from '@/stores/overlay'
 
 import App from './App.vue'
 import { watchPage } from './diagnostics'
+import { startLiveControl } from './liveControl'
 
 import styles from '@/ui/styles.css?inline'
 
@@ -43,4 +44,9 @@ export function mountOverlay(): void {
   isolateFromGame(host, root)
   installShortcuts(host)
   whenGameReady(installCheats)
+  try {
+    startLiveControl()
+  } catch (error) {
+    logError(error)
+  }
 }

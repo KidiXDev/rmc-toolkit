@@ -141,6 +141,7 @@ export interface SceneManagerClass {
 }
 
 export interface BattleManagerClass {
+  _phase?: string
   _escapeRatio: number
   processVictory(): void
   processDefeat(): void
@@ -173,7 +174,9 @@ interface PathModule {
 }
 
 export interface NodeModules {
+  crypto: typeof NodeCrypto
   fs: FileSystem
+  net: typeof NodeNet
   path: PathModule
 }
 
@@ -214,3 +217,5 @@ export interface RpgGlobals {
   }
   nw: { Window: { get(): { showDevTools(): void } } }
 }
+import type * as NodeCrypto from 'node:crypto'
+import type * as NodeNet from 'node:net'

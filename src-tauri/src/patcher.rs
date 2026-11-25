@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use crate::error::{AtPath, Result};
 use crate::files::{remove_file, remove_folder, write_atomically};
 use crate::game::Game;
+use crate::live::ENDPOINT_FILE;
 
 const BUNDLE: &[u8] = include_bytes!("../../dist/cheat.js");
 const BUNDLE_NAME: &str = "cheat.js";
@@ -67,6 +68,7 @@ pub fn uninstall(game: &Game, remove_settings: bool) -> Result<()> {
 
     remove_file(&backup_path(&main_script))?;
     remove_owned_files(&game.cheat_folder())?;
+    remove_file(&game.settings_folder().join(ENDPOINT_FILE))?;
     if remove_settings {
         remove_folder(&game.settings_folder())?;
     }
