@@ -10,25 +10,27 @@ const model = defineModel<boolean>({ required: true })
     v-fx:checkbox
     type="button"
     role="checkbox"
-    class="grid grid-flow-col items-center justify-start text-left gap-2"
+    class="group text-left"
     :aria-checked="model"
     @click="model = !model"
   >
-    <span
-      data-fx-part="box"
-      class="grid h-[18px] w-[18px] place-items-center rounded-[5px] border-outline border-ink bg-paper shadow-control"
-    >
-      <svg
-        viewBox="0 0 20 20"
-        aria-hidden="true"
-        class="h-3 w-3 fill-none stroke-ink"
-        stroke-width="4.6"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+    <span class="grid grid-flow-col items-center justify-start gap-2">
+      <span
+        data-fx-part="box"
+        class="smooth grid h-[18px] w-[18px] place-items-center rounded-[5px] border-outline border-ink bg-paper shadow-control group-hover:bg-panel"
       >
-        <path v-if="model" d="M3.5 10.5l4.5 4.5 8.5-10" />
-      </svg>
+        <svg
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+          class="h-3 w-3 fill-none stroke-ink"
+          stroke-width="4.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path v-if="model" class="fx-tick" d="M3.5 10.5l4.5 4.5 8.5-10" />
+        </svg>
+      </span>
+      {{ label }}
     </span>
-    {{ label }}
   </button>
 </template>

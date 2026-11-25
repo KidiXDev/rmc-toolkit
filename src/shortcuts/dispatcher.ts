@@ -1,4 +1,4 @@
-import { eventTarget, isTextField } from '@/engine/inputGate'
+import { eventTarget, ownsKeyboard } from '@/engine/inputGate'
 import { useOverlay } from '@/stores/overlay'
 
 import { eventReleasesCombo, eventToCombo } from './combo'
@@ -33,7 +33,7 @@ export function installShortcuts(host: HTMLElement): void {
     if (event.key !== 'Escape' || !event.composedPath().includes(host)) return false
 
     const target = eventTarget(event)
-    if (!isTextField(target)) {
+    if (!ownsKeyboard(target)) {
       swallow(event)
       useOverlay().isOpen = false
     }
@@ -45,7 +45,7 @@ export function installShortcuts(host: HTMLElement): void {
       record(event)
       return
     }
-    if (leaveWindow(event) || isTextField(eventTarget(event))) return
+    if (leaveWindow(event) || ownsKeyboard(eventTarget(event))) return
 
     const shortcut = findShortcut(eventToCombo(event))
     if (!shortcut) return

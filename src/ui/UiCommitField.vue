@@ -32,7 +32,7 @@ function revert() {
   <input
     v-fx:input
     type="text"
-    class="w-28 rounded-control border-outline border-ink bg-paper px-2 py-0.5 text-right font-mono text-[12px]"
+    class="smooth w-28 rounded-control border-outline border-ink bg-paper px-2 py-0.5 text-right font-mono text-[12px] hover:bg-panel focus:border-accent focus:bg-paper"
     :value="shown"
     :aria-label="label"
     spellcheck="false"

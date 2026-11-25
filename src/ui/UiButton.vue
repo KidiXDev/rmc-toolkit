@@ -6,10 +6,15 @@ const { variant = 'plain', active = false } = defineProps<{
   active?: boolean
 }>()
 
-const VARIANT_CLASSES = {
-  plain: 'border-ink bg-paper',
-  primary: 'border-ink bg-primary',
-  danger: 'border-danger bg-paper text-danger',
+const SHARED =
+  'smooth rounded-control border-outline px-2.5 py-0.5 font-display text-[13px] font-extrabold italic whitespace-nowrap shadow-control enabled:hover:shadow-hover'
+
+const PLAIN = 'border-ink bg-paper enabled:hover:bg-panel'
+const ACTIVE = 'border-ink bg-soft'
+
+const STRONG = {
+  primary: 'border-ink bg-primary text-onfill enabled:hover:bg-primary-hover',
+  danger: 'border-danger bg-paper text-danger enabled:hover:bg-panel',
 }
 </script>
 
@@ -18,19 +23,12 @@ const VARIANT_CLASSES = {
     v-if="variant === 'plain'"
     v-fx:button
     type="button"
-    class="whitespace-nowrap rounded-control border-outline px-2.5 py-0.5 font-display text-[13px] font-extrabold italic shadow-control"
-    :class="[VARIANT_CLASSES.plain, active && 'bg-soft']"
+    :class="[SHARED, active ? ACTIVE : PLAIN]"
     :aria-pressed="active || undefined"
   >
     <slot />
   </button>
-  <button
-    v-else
-    v-fx:action
-    type="button"
-    class="whitespace-nowrap rounded-control border-outline px-2.5 py-0.5 font-display text-[13px] font-extrabold italic shadow-control"
-    :class="VARIANT_CLASSES[variant]"
-  >
+  <button v-else v-fx:action type="button" :class="[SHARED, STRONG[variant]]">
     <slot />
   </button>
 </template>

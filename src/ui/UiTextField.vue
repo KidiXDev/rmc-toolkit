@@ -10,7 +10,7 @@ const model = defineModel<string>({ required: true })
     v-model="model"
     v-fx:input
     type="text"
-    class="w-full rounded-control border-outline border-ink bg-paper px-2 py-0.5 text-[13px]"
+    class="smooth w-full rounded-control border-outline border-ink bg-paper px-2 py-0.5 text-[13px] hover:bg-panel focus:border-accent focus:bg-paper"
     :placeholder="placeholder"
     :aria-label="label"
     spellcheck="false"

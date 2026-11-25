@@ -39,6 +39,17 @@ describe('installShortcuts', () => {
     expect(event.defaultPrevented).toBe(false)
   })
 
+  it('lets an open menu use the keyboard', () => {
+    const menu = document.createElement('ul')
+    menu.setAttribute('role', 'listbox')
+    host.append(menu)
+    useOverlay().isOpen = true
+    const init = { key: 'Escape', bubbles: true, cancelable: true }
+    menu.dispatchEvent(new KeyboardEvent('keydown', init))
+
+    expect(useOverlay().isOpen).toBe(true)
+  })
+
   it('holds fast-forward until release and never swallows keyup', () => {
     fire('keydown', '`')
     expect(useCheats().fastForward).toBe(true)

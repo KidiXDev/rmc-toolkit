@@ -17,9 +17,9 @@ export function eventTarget(event: Event): Element | null {
   return target instanceof Element ? target : null
 }
 
-export function isTextField(element: Element | null): boolean {
+export function ownsKeyboard(element: Element | null): boolean {
   if (element instanceof HTMLInputElement) return TEXT_INPUT_TYPES.has(element.type)
-  return element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement
+  return element?.getAttribute('role') === 'listbox'
 }
 
 export function isolateFromGame(host: HTMLElement, root: ShadowRoot): void {
@@ -29,7 +29,7 @@ export function isolateFromGame(host: HTMLElement, root: ShadowRoot): void {
 
   host.addEventListener('mousedown', (event) => {
     const target = eventTarget(event)
-    const takesFocus = target instanceof HTMLInputElement || isTextField(target)
+    const takesFocus = target instanceof HTMLInputElement || ownsKeyboard(target)
     if (!takesFocus) event.preventDefault()
   })
 

@@ -36,7 +36,7 @@ function releaseFocus(event: Event) {
 
 <template>
   <div class="grid grid-cols-[130px_46px] items-center gap-2">
-    <div v-fx:slider class="relative h-[18px]" :style="{ '--value': fraction }">
+    <div v-fx:slider class="group relative h-[18px]" :style="{ '--value': fraction }">
       <div
         class="absolute left-0 right-0 top-[4px] h-[10px] overflow-hidden rounded-full border-outline border-ink bg-paper"
       >
@@ -44,7 +44,7 @@ function releaseFocus(event: Event) {
       </div>
       <span
         data-fx-part="thumb"
-        class="absolute top-0 h-[18px] w-[18px] rounded-full border-outline border-ink bg-paper"
+        class="smooth absolute top-0 h-[18px] w-[18px] rounded-full border-outline border-ink bg-paper group-hover:bg-soft"
         style="left: calc(var(--lag, var(--value)) * (100% - 18px))"
       />
       <input

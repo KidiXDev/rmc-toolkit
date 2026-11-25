@@ -11,7 +11,7 @@ const UNSUPPORTED_CSS: Record<string, RegExp> = {
   'inset shorthand': /[;{"`\s]inset:/,
   ':is() / :where() / :has()': /:(?:is|where|has)\(/,
   'logical properties': /(?:padding|margin)-(?:inline|block)/,
-  'individual transforms': /[;{](?:translate|rotate|scale):/,
+  'individual transforms': /[;{](?:translate|rotate|scale):(?:-?[\d.]+|var\()/,
 }
 
 const bundlePath = fileURLToPath(new URL('../dist/cheat.js', import.meta.url))

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
 
-import UiButton from './UiButton.vue'
+import { vFx } from '@/themes/activeEffects'
 
 const CONFIRM_WINDOW_MS = 2500
 
@@ -29,8 +29,18 @@ onBeforeUnmount(disarm)
 </script>
 
 <template>
-  <UiButton :class="isArmed && 'border-danger text-danger'" @click="press">
+  <button
+    v-fx:button
+    type="button"
+    class="smooth whitespace-nowrap rounded-control border-outline px-2.5 py-0.5 font-display text-[13px] font-extrabold italic shadow-control enabled:hover:shadow-hover"
+    :class="
+      isArmed
+        ? 'fx-shake border-danger bg-danger text-paper'
+        : 'border-ink bg-paper enabled:hover:bg-panel'
+    "
+    @click="press"
+  >
     <template v-if="isArmed">Sure?</template>
     <slot v-else />
-  </UiButton>
+  </button>
 </template>

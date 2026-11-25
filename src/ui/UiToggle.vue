@@ -10,7 +10,7 @@ const model = defineModel<boolean>({ required: true })
     v-fx:toggle
     type="button"
     role="switch"
-    class="relative block h-[18px] w-9 rounded-full"
+    class="relative block h-[18px] w-9 rounded-full enabled:hover:brightness-110"
     :aria-checked="model"
     :aria-label="label"
     :disabled="disabled"

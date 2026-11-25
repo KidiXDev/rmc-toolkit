@@ -40,7 +40,7 @@ function revert() {
   <input
     v-fx:input
     type="number"
-    class="w-24 rounded-control border-outline border-ink bg-paper px-2 py-0.5 text-right font-mono text-[12px]"
+    class="smooth w-24 rounded-control border-outline border-ink bg-paper px-2 py-0.5 text-right font-mono text-[12px] hover:bg-panel focus:border-accent focus:bg-paper"
     :min="min"
     :max="max"
     :value="shown"

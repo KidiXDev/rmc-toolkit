@@ -68,17 +68,17 @@ function sortMark(key: SortKey) {
       <slot name="actions" />
     </div>
     <div class="grid grid-cols-[52px_1fr_auto] border-b-hairline text-[11px] text-dim">
-      <button type="button" class="text-left" @click="sortBy('id')">
+      <button type="button" class="text-left hover:text-ink" @click="sortBy('id')">
         No. {{ sortMark('id') }}
       </button>
-      <button type="button" class="text-left" @click="sortBy('name')">
+      <button type="button" class="text-left hover:text-ink" @click="sortBy('name')">
         Name {{ sortMark('name') }}
       </button>
     </div>
     <div
       v-for="row in visible"
       :key="row.id"
-      class="grid min-h-[31px] grid-cols-[52px_1fr_auto] items-center border-b-hairline"
+      class="smooth grid min-h-[31px] grid-cols-[52px_1fr_auto] items-center border-b-hairline hover:bg-panel"
     >
       <span class="font-mono text-[12px] text-dim">{{ row.id }}</span>
       <span class="truncate pr-2" :title="row.name">{{ row.name || '(unnamed)' }}</span>
