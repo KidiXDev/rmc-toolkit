@@ -1,54 +1,75 @@
-# .
+# RPG Maker MV/MZ Cheat Toolkit
 
-This template should help get you started developing with Vue 3 in Vite.
+A small cheat window for RPG Maker MV and MZ games, with a GUI installer.
 
-## Recommended IDE Setup
+## Install
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+1. Download `rmc-toolkit.exe` from the releases page and open it.
+2. Drop your game folder (or its exe) on the window, or click **Browse**.
+3. Click **Install**.
+4. Start the game and press **Ctrl+C**, or click the **RMC** button in the corner.
 
-## Recommended Browser Setup
+**Uninstall** in the same window puts the game's original files back. Games that are packed into a single file are not supported.
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+The installer needs WebView2, which is part of Windows 11 and of updated Windows 10.
 
-## Type Support for `.vue` Imports in TS
+### Manual install
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+1. Create a `cheat` folder next to the game's `index.html` (inside `www` for most MV games) and put `cheat.js` in it.
+2. Add this to the end of `js/main.js`:
 
-## Customize configuration
+   ```js
+   /* === RMC-CHEAT-TOOLKIT:START (do not edit) === */
+   ;(function () {
+     var s = document.createElement('script')
+     s.src = 'cheat/cheat.js'
+     document.head.appendChild(s)
+   })()
+   /* === RMC-CHEAT-TOOLKIT:END === */
+   ```
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Cheats
 
-## Project Setup
+| Tab       | What it does                                                       |
+| :-------- | :----------------------------------------------------------------- |
+| General   | Gold, move speed, no-clip, encounters, game speed, scene shortcuts |
+| Party     | God mode, level, EXP, HP, MP, TP, stats, party members             |
+| Battle    | EXP and damage multipliers, recover, win, lose, escape, enemy HP   |
+| Inventory | Item, weapon and armor amounts                                     |
+| Switches  | Search and toggle                                                  |
+| Variables | Search and edit                                                    |
+| Shortcuts | Change or clear every key                                          |
+| Settings  | Theme, effects, window size, quick save slot, extras               |
+
+Extras are off until you turn them on in **Settings**: teleport, saved places, minimap, event markers, map events and HUD.
+
+| Key           | Action                  |
+| :------------ | :---------------------- |
+| Ctrl+C        | Show or hide the window |
+| Ctrl+S        | Quick save (map only)   |
+| Ctrl+L        | Quick load              |
+| Ctrl+N        | No-clip                 |
+| Backquote (`) | Fast-forward while held |
+
+Shortcuts are ignored while you type in the cheat window. Settings are stored in `cheat-settings` next to the game's `index.html`.
+
+Requires NW.js 0.29 or newer, which ships with MV 1.6 and every MZ version.
+
+## Development
+
+Needs [Bun](https://bun.sh). The installer also needs [Rust](https://rustup.rs).
 
 ```sh
 bun install
+bun dev                  # Cheat window with a mock game
+bun run check            # Format, lint, types and unit tests
+bun run build:overlay    # dist/cheat.js
+bun run dev:installer    # Installer with hot reload
+bun run build:installer  # src-tauri/target/release/rmc-toolkit.exe
 ```
 
-### Compile and Hot-Reload for Development
+Rust tests: `cargo test` in `src-tauri`, after `bun run build:overlay`.
 
-```sh
-bun dev
-```
+## Credits
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-bun run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-bun test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-bun lint
-```
+The Sakuga theme and its effects are based on [Sakuga VFX](https://github.com/finktheartist/sakuga-vfx). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
