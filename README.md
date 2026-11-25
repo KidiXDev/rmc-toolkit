@@ -12,7 +12,11 @@ A small cheat window for RPG Maker MV and MZ games, with a game launcher that in
 The launcher also:
 
 - shows your games with their own title art, favorites, search, filters and sorting
-- starts games and tracks playtime
+- starts games with your own program and arguments, and can force them to stop
+- tracks playtime for the whole process tree, so a game that hands over to another program still counts
+- notices games you start outside the launcher, and picks a running game back up after a restart
+- shows your activity by day, by game and by session, and lets you set a status and notes per game
+- keeps counting from the system tray while a game runs
 - updates the cheats in every game at once, and repairs them after a game update
 - backs up saves before you play, and restores them when you need it
 - warns when a game's engine is too old, and shows errors the cheat window reported
