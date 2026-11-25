@@ -7,7 +7,10 @@ A small cheat window for RPG Maker MV and MZ games, with a game launcher that in
 1. Download `rmc-toolkit.exe` from the releases page and open it.
 2. Drop your game folders on the window, or click **Find games** to search a folder.
 3. Open a game, click **Install cheats**, then **Play**.
-4. In the game, press **Ctrl+C** or click the **RMC** button in the corner.
+4. Start a new game or load a save, then open the **Live** tab in the launcher's game detail page.
+   Use it to edit your party and inventory, navigate the map, control battles, and edit switches
+   and variables. Drag the map to look around and use **Follow player** to recenter it.
+   To open the in-game cheat window, press **Ctrl+C** or click the **RMC** button in the game.
 
 The launcher also:
 
