@@ -7,7 +7,7 @@
     "suspicious": "error",
     "perf": "error"
   },
-  "ignorePatterns": ["dist", "dist-installer", "src-tauri", "src/overlay/polyfills.js"],
+  "ignorePatterns": ["dist", "dist-launcher", "src-tauri", "src/overlay/polyfills.js"],
   "rules": {
     "eqeqeq": "error",
     "no-console": "error",

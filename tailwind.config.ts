@@ -13,7 +13,7 @@ const gridGapForOldChromium = plugin((api) => {
 })
 
 export default {
-  content: ['./index.html', './installer.html', './src/**/*.{vue,ts}'],
+  content: ['./index.html', './launcher.html', './src/**/*.{vue,ts}'],
   corePlugins: { gap: false, preflight: false },
   theme: {
     colors: {

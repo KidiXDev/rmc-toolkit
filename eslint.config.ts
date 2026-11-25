@@ -11,7 +11,7 @@ const baseConfig = defineConfigWithVueTs(
     files: ['**/*.{vue,ts,mts}'],
   },
 
-  globalIgnores(['**/dist/**', '**/dist-installer/**', '**/coverage/**', 'src-tauri/**']),
+  globalIgnores(['**/dist/**', '**/dist-launcher/**', '**/coverage/**', 'src-tauri/**']),
 
   ...pluginVue.configs['flat/recommended'],
   vueTsConfigs.recommendedTypeChecked,

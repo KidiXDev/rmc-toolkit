@@ -2,7 +2,7 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "semi": false,
   "singleQuote": true,
-  "ignorePatterns": ["dist", "dist-installer", "src-tauri/target", "src-tauri/gen", "bun.lock"],
+  "ignorePatterns": ["dist", "dist-launcher", "src-tauri/target", "src-tauri/gen", "bun.lock"],
   "sortImports": {
     "internalPattern": ["@/"],
     "newlinesBetween": true

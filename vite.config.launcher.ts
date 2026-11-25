@@ -8,8 +8,8 @@ export default defineConfig((env) =>
     clearScreen: false,
     server: { port: 1420, strictPort: true },
     build: {
-      outDir: 'dist-installer',
-      rolldownOptions: { input: 'installer.html' },
+      outDir: 'dist-launcher',
+      rolldownOptions: { input: 'launcher.html' },
     },
   }),
 )

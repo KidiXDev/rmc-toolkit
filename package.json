@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:installer": "tauri dev",
+    "dev:launcher": "tauri dev",
     "build:overlay": "vite build --config vite.config.overlay.ts && node scripts/check-bundle.ts",
-    "build:installer": "tauri build --no-bundle",
+    "build:launcher": "tauri build --no-bundle",
     "type-check": "vue-tsc --build",
     "lint": "oxlint . --fix && eslint . --fix --cache",
     "lint:check": "oxlint . && eslint .",
