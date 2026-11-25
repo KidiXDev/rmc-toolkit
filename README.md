@@ -19,7 +19,7 @@ The launcher also:
 - keeps counting from the system tray while a game runs
 - updates the cheats in every game at once, and repairs them after a game update
 - backs up saves before you play, and restores them when you need it
-- warns when a game's engine is too old, and shows errors the cheat window reported
+- warns when a game's engine is too old, and has a **Logs** tab you can copy into a bug report (turn on **Developer mode** in Settings for a detailed log)
 
 **Remove cheats** puts the game's original files back. Games that are packed into a single file are not supported.
 
