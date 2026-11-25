@@ -14,19 +14,9 @@ import styles from '@/ui/styles.css?inline'
 
 const HOST_ID = 'rmc-cheat-host'
 
-const HOST_STYLE = [
-  'position: fixed',
-  'top: 0',
-  'left: 0',
-  'width: 0',
-  'height: 0',
-  'z-index: 2147483647',
-].join(' !important; ')
-
 function createHost(): { host: HTMLElement; root: ShadowRoot } {
   const host = document.createElement('div')
   host.id = HOST_ID
-  host.style.cssText = `${HOST_STYLE} !important`
   document.body.append(host)
   return { host, root: host.attachShadow({ mode: 'open' }) }
 }
