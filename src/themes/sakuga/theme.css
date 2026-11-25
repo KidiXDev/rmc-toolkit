@@ -1,0 +1,24 @@
+[data-theme='sakuga'] {
+  --rmc-paper: #ffffff;
+  --rmc-panel: #f4f3fc;
+  --rmc-ink: #1d1a4a;
+  --rmc-dim: #6f6a9c;
+  --rmc-line: #dcdaf0;
+  --rmc-soft: #b8b3ff;
+  --rmc-primary: #8f8df7;
+  --rmc-accent: #ff5fa8;
+  --rmc-track: #c9cbe0;
+  --rmc-danger: #d81b60;
+
+  --rmc-outline: 2px;
+  --rmc-hairline: 1.5px;
+  --rmc-radius-control: 8px;
+  --rmc-radius-window: 15px;
+  --rmc-shadow-control: 2px 3px 0 var(--rmc-soft);
+  --rmc-shadow-window: 6px 7px 0 var(--rmc-soft);
+
+  --rmc-font-body:
+    -apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', 'Yu Gothic UI', system-ui, sans-serif;
+  --rmc-font-display: 'Avenir Next', Nunito, -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --rmc-font-mono: Consolas, 'SF Mono', Menlo, monospace;
+}
