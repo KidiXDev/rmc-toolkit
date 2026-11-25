@@ -6,6 +6,18 @@ use serde_json::Value;
 
 use crate::error::{Error, Result};
 
+const VERSION_KEY: &str = "RPGMAKER_VERSION";
+const OLDEST_SUPPORTED_MV: (u32, u32) = (1, 6);
+
+const HELPER_PROGRAMS: [&str; 6] = [
+    "notification_helper",
+    "nwjc",
+    "chromedriver",
+    "payload",
+    "crashpad_handler",
+    "unins000",
+];
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 pub enum Engine {
     #[serde(rename = "MV")]
@@ -30,11 +42,13 @@ impl Game {
         } else {
             path
         };
+        Self::in_folder(folder).ok_or_else(|| missing_game_error(folder))
+    }
 
+    pub fn in_folder(folder: &Path) -> Option<Self> {
         [folder.to_owned(), folder.join("www")]
             .into_iter()
             .find_map(Self::at_content)
-            .ok_or_else(|| missing_game_error(folder))
     }
 
     fn at_content(content: PathBuf) -> Option<Self> {
@@ -52,6 +66,17 @@ impl Game {
         Some(Self { engine, content })
     }
 
+    pub fn root(&self) -> &Path {
+        let is_www = self
+            .content
+            .file_name()
+            .is_some_and(|name| name.eq_ignore_ascii_case("www"));
+        match self.content.parent() {
+            Some(parent) if is_www => parent,
+            _ => &self.content,
+        }
+    }
+
     pub fn main_script(&self) -> PathBuf {
         self.content.join("js").join("main.js")
     }
@@ -64,37 +89,98 @@ impl Game {
         self.content.join("cheat-settings")
     }
 
+    pub fn save_folder(&self) -> PathBuf {
+        self.content.join("save")
+    }
+
     pub fn title(&self) -> String {
-        let system = read_json(&self.content.join("data").join("System.json"));
-        text_field(system.as_ref(), "gameTitle").unwrap_or_else(|| self.folder_name())
+        self.system_text("gameTitle").unwrap_or_else(|| {
+            let root = self.root();
+            root.file_name()
+                .unwrap_or(root.as_os_str())
+                .to_string_lossy()
+                .into_owned()
+        })
     }
 
-    fn folder_name(&self) -> String {
-        let is_www = self
-            .content
-            .file_name()
-            .is_some_and(|name| name.eq_ignore_ascii_case("www"));
-        let folder = if is_www {
-            self.content.parent().unwrap_or(&self.content)
-        } else {
-            &self.content
+    pub fn title_image(&self) -> Option<PathBuf> {
+        let name = self.system_text("title1Name")?;
+        let is_plain_name = Path::new(&name).components().count() == 1;
+        is_plain_name.then(|| {
+            self.content
+                .join("img")
+                .join("titles1")
+                .join(format!("{name}.png"))
+        })
+    }
+
+    pub fn icon_image(&self) -> PathBuf {
+        self.content.join("icon").join("icon.png")
+    }
+
+    pub fn maker_version(&self) -> Option<String> {
+        let core = match self.engine {
+            Engine::Mv => "rpg_core.js",
+            Engine::Mz => "rmmz_core.js",
         };
-        folder
-            .file_name()
-            .unwrap_or(folder.as_os_str())
-            .to_string_lossy()
-            .into_owned()
+        let script = fs::read(self.content.join("js").join(core)).ok()?;
+        let script = String::from_utf8_lossy(&script);
+        let (_, rest) = script.split_once(VERSION_KEY)?;
+        let quoted = rest
+            .trim_start()
+            .strip_prefix('=')?
+            .trim_start()
+            .strip_prefix(['"', '\''])?;
+        let (version, _) = quoted.split_once(['"', '\''])?;
+        Some(version.to_owned())
+    }
+
+    pub fn is_supported(&self, maker_version: Option<&str>) -> bool {
+        let Some(version) = maker_version.filter(|_| self.engine == Engine::Mv) else {
+            return true;
+        };
+        let mut numbers = version.split('.').map(|part| part.parse().unwrap_or(0));
+        let major = numbers.next().unwrap_or(0);
+        let minor = numbers.next().unwrap_or(0);
+        (major, minor) >= OLDEST_SUPPORTED_MV
+    }
+
+    pub fn executable(&self) -> Option<PathBuf> {
+        let root = self.root();
+        let usual = root.join(if cfg!(windows) { "Game.exe" } else { "Game" });
+        if usual.is_file() {
+            return Some(usual);
+        }
+        let mut programs: Vec<PathBuf> = fs::read_dir(root)
+            .ok()?
+            .filter_map(|entry| Some(entry.ok()?.path()))
+            .filter(|path| is_game_program(path))
+            .collect();
+        programs.sort();
+        programs.into_iter().next()
+    }
+
+    fn system_text(&self, key: &str) -> Option<String> {
+        let path = self.content.join("data").join("System.json");
+        let text = fs::read_to_string(path).ok()?;
+        let system: Value = serde_json::from_str(text.trim_start_matches('\u{feff}')).ok()?;
+        let value = system.get(key)?.as_str()?.trim();
+        (!value.is_empty()).then(|| value.to_owned())
     }
 }
 
-fn read_json(path: &Path) -> Option<Value> {
-    let text = fs::read_to_string(path).ok()?;
-    serde_json::from_str(text.trim_start_matches('\u{feff}')).ok()
-}
-
-fn text_field(json: Option<&Value>, key: &str) -> Option<String> {
-    let text = json?.get(key)?.as_str()?.trim();
-    (!text.is_empty()).then(|| text.to_owned())
+fn is_game_program(path: &Path) -> bool {
+    let stem = path
+        .file_stem()
+        .map(|stem| stem.to_string_lossy().to_lowercase())
+        .unwrap_or_default();
+    let is_program = if cfg!(windows) {
+        path.extension()
+            .is_some_and(|extension| extension.eq_ignore_ascii_case("exe"))
+    } else {
+        stem == "nw"
+    };
+    is_program && path.is_file() && !HELPER_PROGRAMS.contains(&stem.as_str())
 }
 
 fn missing_game_error(folder: &Path) -> Error {
@@ -114,15 +200,14 @@ mod tests {
 
     #[test]
     fn finds_mv_in_www_from_folder_or_exe() {
-        let temp = TempFolder::new();
-        temp.write("www/js/main.js", b"");
-        temp.write("www/js/rpg_core.js", b"");
+        let temp = TempFolder::with_mv_game();
         temp.write("Game.exe", b"");
 
         for path in [temp.path().to_owned(), temp.path().join("Game.exe")] {
             let game = Game::detect(&path).unwrap();
             assert_eq!(game.engine, Engine::Mv);
             assert_eq!(game.content, temp.path().join("www"));
+            assert_eq!(game.root(), temp.path());
         }
     }
 
@@ -132,8 +217,10 @@ mod tests {
             let temp = TempFolder::new();
             temp.write("js/main.js", b"");
             temp.write(&format!("js/{core}"), b"");
+            let game = Game::detect(temp.path()).unwrap();
 
-            assert_eq!(Game::detect(temp.path()).unwrap().engine, engine);
+            assert_eq!(game.engine, engine);
+            assert_eq!(game.root(), temp.path());
         }
     }
 
@@ -159,9 +246,7 @@ mod tests {
 
     #[test]
     fn reads_title_with_bom_and_falls_back_to_folder() {
-        let temp = TempFolder::new();
-        temp.write("www/js/main.js", b"");
-        temp.write("www/js/rpg_core.js", b"");
+        let temp = TempFolder::with_mv_game();
         let folder = temp.path().file_name().unwrap().to_string_lossy();
         let game = Game::detect(temp.path()).unwrap();
         assert_eq!(game.title(), folder);
@@ -171,5 +256,48 @@ mod tests {
             "\u{feff}{\"gameTitle\":\"Moon Quest\"}".as_bytes(),
         );
         assert_eq!(game.title(), "Moon Quest");
+    }
+
+    #[test]
+    fn title_image_never_leaves_the_game_folder() {
+        let temp = TempFolder::with_mv_game();
+        let game = Game::detect(temp.path()).unwrap();
+        temp.write("www/data/System.json", br#"{"title1Name":"../../secret"}"#);
+        assert_eq!(game.title_image(), None);
+
+        temp.write("www/data/System.json", br#"{"title1Name":"Castle"}"#);
+        assert!(game.title_image().unwrap().ends_with("titles1/Castle.png"));
+    }
+
+    #[test]
+    fn reads_the_maker_version_and_flags_old_ones() {
+        let temp = TempFolder::with_mv_game();
+        let game = Game::detect(temp.path()).unwrap();
+        assert!(game.is_supported(None));
+
+        for (script, version, supported) in [
+            ("Utils.RPGMAKER_VERSION = '1.6.2';", "1.6.2", true),
+            ("Utils.RPGMAKER_VERSION = \"1.5.1\";", "1.5.1", false),
+        ] {
+            temp.write("www/js/rpg_core.js", script.as_bytes());
+            let found = game.maker_version();
+            assert_eq!(found.as_deref(), Some(version));
+            assert_eq!(game.is_supported(found.as_deref()), supported);
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn picks_the_game_program_over_helpers() {
+        let temp = TempFolder::with_mv_game();
+        let game = Game::detect(temp.path()).unwrap();
+        assert_eq!(game.executable(), None);
+
+        temp.write("notification_helper.exe", b"");
+        temp.write("MoonQuest.exe", b"");
+        assert_eq!(game.executable(), Some(temp.path().join("MoonQuest.exe")));
+
+        temp.write("Game.exe", b"");
+        assert_eq!(game.executable(), Some(temp.path().join("Game.exe")));
     }
 }

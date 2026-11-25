@@ -5,26 +5,29 @@
   "version": "../package.json",
   "identifier": "dev.kidix.rmc-toolkit",
   "build": {
-    "beforeDevCommand": "bun run build:overlay && bunx vite --config vite.config.installer.ts",
+    "beforeDevCommand": "bun run build:overlay && bunx vite --config vite.config.launcher.ts",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "bun run build:overlay && bunx vite build --config vite.config.installer.ts",
-    "frontendDist": "../dist-installer"
+    "beforeBuildCommand": "bun run build:overlay && bunx vite build --config vite.config.launcher.ts",
+    "frontendDist": "../dist-launcher"
   },
   "app": {
     "windows": [
       {
         "label": "main",
         "title": "RMC Toolkit",
-        "url": "installer.html",
-        "width": 620,
-        "height": 600,
-        "minWidth": 520,
-        "minHeight": 420,
+        "url": "launcher.html",
+        "width": 1120,
+        "height": 720,
+        "minWidth": 860,
+        "minHeight": 560,
+        "center": true,
+        "decorations": false,
+        "shadow": true,
         "dragDropEnabled": true
       }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost"
+      "csp": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost"
     }
   },
   "bundle": {

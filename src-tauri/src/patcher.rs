@@ -1,8 +1,8 @@
 use std::fs;
-use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::error::{AtPath, Result};
+use crate::files::{remove_file, remove_folder, write_atomically};
 use crate::game::Game;
 
 const BUNDLE: &[u8] = include_bytes!("../../dist/cheat.js");
@@ -68,8 +68,7 @@ pub fn uninstall(game: &Game, remove_settings: bool) -> Result<()> {
     remove_file(&backup_path(&main_script))?;
     remove_owned_files(&game.cheat_folder())?;
     if remove_settings {
-        let settings = game.settings_folder();
-        ignore_missing(fs::remove_dir_all(&settings)).at(&settings)?;
+        remove_folder(&game.settings_folder())?;
     }
     Ok(())
 }
@@ -85,27 +84,8 @@ fn remove_owned_files(folder: &Path) -> Result<()> {
     Ok(())
 }
 
-fn remove_file(path: &Path) -> Result<()> {
-    ignore_missing(fs::remove_file(path)).at(path)
-}
-
-fn ignore_missing(result: io::Result<()>) -> io::Result<()> {
-    match result {
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
-        other => other,
-    }
-}
-
-fn backup_path(main_script: &Path) -> std::path::PathBuf {
+fn backup_path(main_script: &Path) -> PathBuf {
     main_script.with_extension("js.rmc-backup")
-}
-
-fn write_atomically(path: &Path, content: &[u8]) -> Result<()> {
-    let pending = path.with_extension("rmc-tmp");
-    fs::write(&pending, content).at(&pending)?;
-    fs::rename(&pending, path).at(path).inspect_err(|_| {
-        let _ = fs::remove_file(&pending);
-    })
 }
 
 fn add_loader(original: &[u8]) -> Vec<u8> {

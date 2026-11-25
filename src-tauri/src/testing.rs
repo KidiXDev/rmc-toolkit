@@ -14,6 +14,13 @@ impl TempFolder {
         Self(path)
     }
 
+    pub fn with_mv_game() -> Self {
+        let temp = Self::new();
+        temp.write("www/js/main.js", b"");
+        temp.write("www/js/rpg_core.js", b"");
+        temp
+    }
+
     pub fn path(&self) -> &Path {
         &self.0
     }
