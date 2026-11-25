@@ -1,0 +1,98 @@
+<script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+
+import UiButton from '@/ui/UiButton.vue'
+
+import type { GameInfo } from '../api'
+import FavoriteButton from '../components/FavoriteButton.vue'
+import FocusLines from '../components/FocusLines.vue'
+import GameCover from '../components/GameCover.vue'
+import PlayButton from '../components/PlayButton.vue'
+import StatusBadge from '../components/StatusBadge.vue'
+import { engineLabel, playSummary } from '../format'
+import { useLibrary } from '../library'
+import { useNavigation } from '../navigation'
+import CheatsTab from './CheatsTab.vue'
+import DetailsTab from './DetailsTab.vue'
+import SavesTab from './SavesTab.vue'
+
+defineProps<{ game: GameInfo }>()
+
+const TABS = [
+  { id: 'cheats', label: 'Cheats', component: CheatsTab },
+  { id: 'saves', label: 'Saves', component: SavesTab },
+  { id: 'details', label: 'Details', component: DetailsTab },
+] as const
+
+const library = useLibrary()
+const navigation = useNavigation()
+const active = ref<(typeof TABS)[number]>(TABS[0])
+
+function goBack(event: KeyboardEvent) {
+  if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement)) {
+    navigation.openLibrary()
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', goBack))
+onBeforeUnmount(() => window.removeEventListener('keydown', goBack))
+</script>
+
+<template>
+  <div class="h-full overflow-y-auto">
+    <section
+      class="relative grid h-[270px] grid-cols-[56%_minmax(0,1fr)] overflow-hidden border-b-outline border-ink bg-paper"
+    >
+      <FocusLines />
+      <div class="cover-panel relative h-full bg-ink pr-[5px]">
+        <div class="cover-panel h-full"><GameCover :game="game" /></div>
+      </div>
+      <div class="relative grid content-center justify-items-center px-4 text-center gap-2">
+        <h1
+          class="max-w-full break-words bg-paper px-2 font-display text-[28px] font-extrabold italic leading-[1.1]"
+        >
+          {{ game.title }}
+        </h1>
+        <p class="bg-paper px-2 text-dim">{{ engineLabel(game) }}</p>
+        <PlayButton class="my-1" :game="game" size="large" />
+        <p v-if="game.executable === null && game.status !== 'missing'" class="bg-paper px-2">
+          Choose the game program under Details to play.
+        </p>
+        <UiButton v-if="game.status === 'missing'" @click="library.locate(game)">
+          Find its new folder
+        </UiButton>
+      </div>
+      <div class="absolute left-3 top-3 grid grid-flow-col items-center gap-2">
+        <UiButton @click="navigation.openLibrary">Library</UiButton>
+        <FavoriteButton :game="game" />
+        <StatusBadge :status="game.status" />
+      </div>
+    </section>
+
+    <div
+      class="grid grid-cols-[minmax(0,1fr)_auto] items-center border-b-hairline px-5 py-2.5 gap-4"
+    >
+      <div class="grid grid-flow-col justify-start gap-1.5" role="tablist" aria-label="Game">
+        <UiButton
+          v-for="tab in TABS"
+          :key="tab.id"
+          role="tab"
+          :aria-selected="tab.id === active.id"
+          :active="tab.id === active.id"
+          @click="active = tab"
+        >
+          {{ tab.label }}
+        </UiButton>
+      </div>
+      <span class="text-dim">{{ playSummary(game) }}</span>
+    </div>
+
+    <div class="max-w-[720px] px-5 py-4" role="tabpanel" :aria-label="active.label">
+      <p v-if="game.status === 'missing'" class="text-dim">
+        {{ game.path }} is not available. Plug in its drive, or use the button above if you moved
+        it.
+      </p>
+      <component :is="active.component" v-else :key="`${game.id}-${active.id}`" :game="game" />
+    </div>
+  </div>
+</template>

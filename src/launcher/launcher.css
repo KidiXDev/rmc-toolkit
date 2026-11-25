@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+.rmc-root input {
+  user-select: text;
+}
+
+.cover-panel {
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+}
+
+.game-card {
+  transition: transform 160ms cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.game-card:hover,
+.game-card:focus-within {
+  transform: translate(-2px, -3px);
+}
+
+.game-card .reveal {
+  opacity: 0;
+}
+
+.game-card:hover .reveal,
+.game-card:focus-within .reveal {
+  opacity: 1;
+}
+
+.chrome-button:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.chrome-button.is-close:hover {
+  background: var(--rmc-danger);
+}
+
+.side-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.side-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-card {
+    transition: none;
+  }
+}
