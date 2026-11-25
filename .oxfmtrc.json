@@ -1,5 +1,14 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "semi": false,
-  "singleQuote": true
+  "singleQuote": true,
+  "ignorePatterns": ["dist", "dist-installer", "src-tauri/target", "src-tauri/gen", "bun.lock"],
+  "sortImports": {
+    "internalPattern": ["@/"],
+    "newlinesBetween": true
+  },
+  "sortTailwindcss": {
+    "config": "./tailwind.config.ts",
+    "functions": ["tw"]
+  }
 }
