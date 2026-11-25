@@ -113,14 +113,7 @@ impl Game {
         };
         let script = fs::read(self.content.join("js").join(core)).ok()?;
         let script = String::from_utf8_lossy(&script);
-        let (_, rest) = script.split_once(VERSION_KEY)?;
-        let quoted = rest
-            .trim_start()
-            .strip_prefix('=')?
-            .trim_start()
-            .strip_prefix(['"', '\''])?;
-        let (version, _) = quoted.split_once(['"', '\''])?;
-        Some(version.to_owned())
+        script.split(VERSION_KEY).skip(1).find_map(assigned_text)
     }
 
     pub fn is_supported(&self, maker_version: Option<&str>) -> bool {
@@ -155,6 +148,16 @@ impl Game {
         let value = system.get(key)?.as_str()?.trim();
         (!value.is_empty()).then(|| value.to_owned())
     }
+}
+
+fn assigned_text(rest: &str) -> Option<String> {
+    let quoted = rest
+        .trim_start()
+        .strip_prefix('=')?
+        .trim_start()
+        .strip_prefix(['"', '\''])?;
+    let (text, _) = quoted.split_once(['"', '\''])?;
+    Some(text.to_owned())
 }
 
 pub fn root_of(content: &Path) -> &Path {
@@ -287,6 +290,11 @@ mod tests {
         for (script, version, supported) in [
             ("Utils.RPGMAKER_VERSION = '1.6.2';", "1.6.2", true),
             ("Utils.RPGMAKER_VERSION = \"1.5.1\";", "1.5.1", false),
+            (
+                "/** @property RPGMAKER_VERSION\n */\nUtils.RPGMAKER_VERSION = \"1.6.1\";",
+                "1.6.1",
+                true,
+            ),
         ] {
             temp.write("www/js/rpg_core.js", script.as_bytes());
             let found = game.maker_version();
