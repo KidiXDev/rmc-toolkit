@@ -14,7 +14,7 @@ const navigation = useNavigation()
 
 <template>
   <article
-    class="grid cursor-pointer grid-cols-[64px_minmax(0,1fr)_90px_120px_150px_auto_auto] items-center border-b-hairline py-1.5 pr-1 gap-3 hover:bg-panel"
+    class="smooth grid cursor-pointer grid-cols-[64px_minmax(0,1fr)_90px_120px_150px_auto_auto] items-center border-b-hairline py-1.5 pr-1 gap-3 hover:bg-panel"
     @click="navigation.openGame(game.id)"
   >
     <span class="h-12 w-16 overflow-hidden rounded-[6px] border-hairline border-ink">
@@ -25,7 +25,7 @@ const navigation = useNavigation()
       <span class="text-[11px] text-dim">{{ engineLabel(game) }}</span>
     </button>
     <span><StatusBadge :status="game.status" /></span>
-    <span class="text-[12px] text-dim">{{ formatPlaytime(game.playSeconds) }}</span>
+    <span class="text-[12px] text-dim">{{ formatPlaytime(game.playMs) }}</span>
     <span class="text-[12px] text-dim">
       {{ game.lastPlayed === null ? '' : formatDate(game.lastPlayed) }}
     </span>

@@ -1,14 +1,21 @@
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { createToasts } from '@/stores/toasts'
 
 import * as api from './api'
-import type { FoundGame, GameInfo } from './api'
-import { countLabel } from './format'
+import type { FoundGame, GameEnded, GameInfo, PlaySession, PlayStatus } from './api'
+import { countLabel, formatDuration } from './format'
 import { useNavigation } from './navigation'
 import { usePreferences } from './preferences'
+
+async function showWindow() {
+  const appWindow = getCurrentWindow()
+  await appWindow.show()
+  await appWindow.unminimize()
+  await appWindow.setFocus()
+}
 
 export const useLibrary = defineStore('library', () => {
   const navigation = useNavigation()
@@ -16,6 +23,8 @@ export const useLibrary = defineStore('library', () => {
   const { toasts, notify, dismissToast } = createToasts()
 
   const games = ref<GameInfo[]>([])
+  const pastSessions = ref<PlaySession[]>([])
+  const fetchedAt = ref(Date.now())
   const version = ref('')
   const isLoaded = ref(false)
   const busyIds = ref(new Set<string>())
@@ -24,8 +33,13 @@ export const useLibrary = defineStore('library', () => {
   const isScanning = ref(false)
 
   const outdated = computed(() => games.value.filter((game) => game.status === 'outdated'))
-  const running = computed(() => games.value.filter((game) => game.isRunning))
+  const running = computed(() => games.value.filter((game) => game.session !== null))
   const favorites = computed(() => games.value.filter((game) => game.favorite))
+
+  const sessions = computed(() => [
+    ...pastSessions.value,
+    ...games.value.flatMap((game) => (game.session ? [game.session] : [])),
+  ])
 
   const gameById = (id: string) => games.value.find((game) => game.id === id)
 
@@ -40,7 +54,10 @@ export const useLibrary = defineStore('library', () => {
   }
 
   async function refresh() {
-    games.value = await api.listGames()
+    const [listed, past] = await Promise.all([api.listGames(), api.listSessions()])
+    games.value = listed
+    pastSessions.value = past
+    fetchedAt.value = Date.now()
     isLoaded.value = true
   }
 
@@ -107,6 +124,35 @@ export const useLibrary = defineStore('library', () => {
     if (hasStarted && preferences.minimizeOnPlay) await getCurrentWindow().minimize()
   }
 
+  async function onGameEnded({ id, playedMs, isEarly }: GameEnded) {
+    await attempt(refresh)
+    const title = gameById(id)?.title ?? 'The game'
+    if (isEarly) {
+      notify(`${title} closed right away. Check its program under Details.`, 'error')
+    } else {
+      notify(`Played ${title} for ${formatDuration(playedMs)}`)
+    }
+    if (preferences.restoreAfterPlay) await showWindow()
+  }
+
+  const stop = (game: GameInfo) =>
+    change(game.id, () => api.stopGame(game.id), `Stopping ${game.title}`)
+
+  const setPlayStatus = (game: GameInfo, status: PlayStatus) =>
+    change(game.id, () => api.setPlayStatus(game.id, status))
+
+  const setNotes = (game: GameInfo, notes: string) =>
+    change(game.id, () => api.setNotes(game.id, notes))
+
+  const setArguments = (game: GameInfo, text: string) =>
+    change(game.id, () => api.setArguments(game.id, text))
+
+  watch(
+    () => preferences.staysInTray,
+    (stays) => attempt(() => api.setStaysInTray(stays)),
+    { immediate: true },
+  )
+
   const install = (game: GameInfo) =>
     change(
       game.id,
@@ -169,6 +215,8 @@ export const useLibrary = defineStore('library', () => {
 
   return {
     games,
+    sessions,
+    fetchedAt,
     version,
     isLoaded,
     busyIds,
@@ -190,6 +238,11 @@ export const useLibrary = defineStore('library', () => {
     scan,
     addFound,
     play,
+    stop,
+    onGameEnded,
+    setPlayStatus,
+    setNotes,
+    setArguments,
     install,
     uninstall,
     toggleFavorite,

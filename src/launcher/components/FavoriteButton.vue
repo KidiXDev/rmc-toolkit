@@ -1,22 +1,37 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import type { GameInfo } from '../api'
 import { useLibrary } from '../library'
 
 const { game } = defineProps<{ game: GameInfo }>()
 
 const library = useLibrary()
+const isPopping = ref(false)
+
+async function toggle() {
+  isPopping.value = false
+  await library.toggleFavorite(game)
+  isPopping.value = game.favorite
+}
 </script>
 
 <template>
   <button
     type="button"
-    class="grid h-7 w-7 place-items-center rounded-full border-outline border-ink bg-paper"
+    class="smooth grid h-7 w-7 place-items-center rounded-full border-outline border-ink bg-paper hover:bg-soft"
     :aria-pressed="game.favorite"
     :aria-label="game.favorite ? 'Remove from favorites' : 'Add to favorites'"
     :title="game.favorite ? 'Remove from favorites' : 'Add to favorites'"
-    @click.stop="library.toggleFavorite(game)"
+    @click.stop="toggle"
   >
-    <svg viewBox="0 0 20 20" class="h-4 w-4" stroke="var(--rmc-ink)" stroke-width="1.8">
+    <svg
+      viewBox="0 0 20 20"
+      class="h-4 w-4"
+      :class="isPopping && 'fx-star'"
+      stroke="var(--rmc-ink)"
+      stroke-width="1.8"
+    >
       <path
         :fill="game.favorite ? 'var(--rmc-accent)' : 'none'"
         stroke-linejoin="round"

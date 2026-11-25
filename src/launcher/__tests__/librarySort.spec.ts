@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { GameInfo } from '../api'
-import { formatBytes, formatPlaytime } from '../format'
+import { formatBytes, formatClock, formatPlaytime } from '../format'
 import { arrangeGames } from '../librarySort'
 import { sanitizePreferences } from '../preferences'
 
@@ -17,9 +17,12 @@ function game(title: string, changes: Partial<GameInfo> = {}): GameInfo {
     status: 'notInstalled',
     cheatVersion: null,
     executable: null,
-    isRunning: false,
+    session: null,
+    arguments: '',
+    playStatus: 'unsorted',
+    notes: '',
     favorite: false,
-    playSeconds: 0,
+    playMs: 0,
     lastPlayed: null,
     addedAt: 0,
     coverKey: title,
@@ -28,7 +31,7 @@ function game(title: string, changes: Partial<GameInfo> = {}): GameInfo {
 }
 
 const games = [
-  game('Chapter 10', { playSeconds: 50, favorite: true }),
+  game('Chapter 10', { playMs: 50, favorite: true, playStatus: 'finished' }),
   game('Chapter 2', { lastPlayed: 5, status: 'outdated' }),
   game('Azure', { lastPlayed: 9, status: 'current', addedAt: 3 }),
 ]
@@ -49,17 +52,20 @@ describe('arrangeGames', () => {
     expect(titles('', 'installed', 'title')).toEqual(['Azure', 'Chapter 2'])
     expect(titles('chapter', 'updates', 'title')).toEqual(['Chapter 2'])
     expect(titles('', 'favorites', 'title')).toEqual(['Chapter 10'])
+    expect(arrangeGames(games, '', 'all', 'title', 'finished')).toEqual([games[0]])
   })
 })
 
 describe('formatting', () => {
   it('keeps numbers readable', () => {
-    expect([0, 30, 600, 5400].map(formatPlaytime)).toEqual([
+    expect([0, 30_000, 600_000, 5_400_000, 7_200_000].map(formatPlaytime)).toEqual([
       'Not played yet',
-      'Less than a minute',
+      'Under 1 min',
       '10 min',
-      '1.5 h',
+      '1 h 30 min',
+      '2 h',
     ])
+    expect([9_000, 754_000, 3_725_000].map(formatClock)).toEqual(['0:09', '12:34', '1:02:05'])
     expect([10, 2048, 3_145_728].map(formatBytes)).toEqual(['1 KB', '2 KB', '3.0 MB'])
   })
 })

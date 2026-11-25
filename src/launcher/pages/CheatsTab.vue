@@ -40,14 +40,14 @@ onMounted(async () => {
       <UiButton
         v-if="game.status !== 'current'"
         variant="primary"
-        :disabled="game.isRunning || library.busyIds.has(game.id)"
+        :disabled="game.session !== null || library.busyIds.has(game.id)"
         @click="library.install(game)"
       >
         {{ game.status === 'outdated' ? 'Update cheats' : 'Install cheats' }}
       </UiButton>
       <template v-if="game.status !== 'notInstalled'">
         <UiConfirmButton
-          :disabled="game.isRunning || library.busyIds.has(game.id)"
+          :disabled="game.session !== null || library.busyIds.has(game.id)"
           @confirm="library.uninstall(game, removeSettings)"
         >
           Remove cheats

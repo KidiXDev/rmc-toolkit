@@ -1,7 +1,16 @@
 import { defineStore } from 'pinia'
 import { reactive, toRefs, watch } from 'vue'
 
-import { FILTERS, SORTS, type Filter, type Sort } from './librarySort'
+import { readColorMode, type ColorMode } from '@/themes/colorMode'
+
+import {
+  FILTERS,
+  SORTS,
+  STATUS_FILTERS,
+  type Filter,
+  type Sort,
+  type StatusFilter,
+} from './librarySort'
 
 const STORAGE_KEY = 'rmc-launcher'
 
@@ -10,24 +19,32 @@ export type Layout = (typeof LAYOUTS)[number]
 
 export interface Preferences {
   theme: string
+  colorMode: ColorMode
   effects: boolean
   layout: Layout
   filter: Filter
   sort: Sort
+  statusFilter: StatusFilter
   backupBeforePlay: boolean
   minimizeOnPlay: boolean
   installOnAdd: boolean
+  restoreAfterPlay: boolean
+  staysInTray: boolean
 }
 
 const DEFAULTS: Preferences = {
   theme: 'sakuga',
+  colorMode: 'system',
   effects: true,
   layout: 'grid',
   filter: 'all',
   sort: 'recent',
+  statusFilter: 'any',
   backupBeforePlay: true,
   minimizeOnPlay: false,
   installOnAdd: false,
+  restoreAfterPlay: false,
+  staysInTray: false,
 }
 
 function oneOf<T extends string>(options: readonly T[], value: unknown, fallback: T): T {
@@ -44,13 +61,17 @@ export function sanitizePreferences(raw: unknown): Preferences {
 
   return {
     theme: typeof saved.theme === 'string' ? saved.theme : DEFAULTS.theme,
+    colorMode: readColorMode(saved.colorMode),
     effects: flag(saved.effects, DEFAULTS.effects),
     layout: oneOf(LAYOUTS, saved.layout, DEFAULTS.layout),
     filter: oneOf(FILTERS, saved.filter, DEFAULTS.filter),
     sort: oneOf(SORTS, saved.sort, DEFAULTS.sort),
+    statusFilter: oneOf(STATUS_FILTERS, saved.statusFilter, DEFAULTS.statusFilter),
     backupBeforePlay: flag(saved.backupBeforePlay, DEFAULTS.backupBeforePlay),
     minimizeOnPlay: flag(saved.minimizeOnPlay, DEFAULTS.minimizeOnPlay),
     installOnAdd: flag(saved.installOnAdd, DEFAULTS.installOnAdd),
+    restoreAfterPlay: flag(saved.restoreAfterPlay, DEFAULTS.restoreAfterPlay),
+    staysInTray: flag(saved.staysInTray, DEFAULTS.staysInTray),
   }
 }
 

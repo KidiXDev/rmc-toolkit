@@ -1,11 +1,24 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export type Page = { name: 'library' } | { name: 'settings' } | { name: 'game'; id: string }
+export type Page =
+  | { name: 'home' }
+  | { name: 'library' }
+  | { name: 'activity' }
+  | { name: 'settings' }
+  | { name: 'game'; id: string }
 
 export const useNavigation = defineStore('navigation', () => {
-  const page = ref<Page>({ name: 'library' })
+  const page = ref<Page>({ name: 'home' })
   const query = ref('')
+
+  function openHome() {
+    page.value = { name: 'home' }
+  }
+
+  function openActivity() {
+    page.value = { name: 'activity' }
+  }
 
   function openLibrary() {
     page.value = { name: 'library' }
@@ -19,5 +32,5 @@ export const useNavigation = defineStore('navigation', () => {
     page.value = { name: 'game', id }
   }
 
-  return { page, query, openLibrary, openSettings, openGame }
+  return { page, query, openHome, openActivity, openLibrary, openSettings, openGame }
 })

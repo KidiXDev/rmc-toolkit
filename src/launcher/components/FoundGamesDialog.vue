@@ -24,13 +24,13 @@ function setChosen(path: string, isChosen: boolean) {
 
 <template>
   <div
-    class="fixed bottom-0 left-0 right-0 top-10 grid place-items-center bg-[rgba(29,26,74,0.55)]"
+    class="fixed bottom-0 left-0 right-0 top-10 grid place-items-center bg-scrim"
     @keydown.esc="emit('add', [])"
   >
     <section
       role="dialog"
       aria-label="Games found"
-      class="grid max-h-[480px] w-[520px] grid-rows-[auto_minmax(0,1fr)_auto] rounded-window border-outline border-ink bg-paper p-4 shadow-window"
+      class="pop-body grid max-h-[480px] w-[520px] grid-rows-[auto_minmax(0,1fr)_auto] rounded-window border-outline border-ink bg-paper p-4 shadow-window"
     >
       <h2 class="mb-2 font-display text-[20px] font-extrabold italic">
         {{

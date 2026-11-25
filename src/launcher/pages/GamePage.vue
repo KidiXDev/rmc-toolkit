@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import UiButton from '@/ui/UiButton.vue'
+import UiConfirmButton from '@/ui/UiConfirmButton.vue'
 
 import type { GameInfo } from '../api'
 import FavoriteButton from '../components/FavoriteButton.vue'
@@ -12,6 +13,7 @@ import StatusBadge from '../components/StatusBadge.vue'
 import { engineLabel, playSummary } from '../format'
 import { useLibrary } from '../library'
 import { useNavigation } from '../navigation'
+import ActivityTab from './ActivityTab.vue'
 import CheatsTab from './CheatsTab.vue'
 import DetailsTab from './DetailsTab.vue'
 import SavesTab from './SavesTab.vue'
@@ -20,9 +22,12 @@ defineProps<{ game: GameInfo }>()
 
 const TABS = [
   { id: 'cheats', label: 'Cheats', component: CheatsTab },
+  { id: 'activity', label: 'Activity', component: ActivityTab },
   { id: 'saves', label: 'Saves', component: SavesTab },
   { id: 'details', label: 'Details', component: DetailsTab },
 ] as const
+
+const LONG_TITLE = 36
 
 const library = useLibrary()
 const navigation = useNavigation()
@@ -41,20 +46,31 @@ onBeforeUnmount(() => window.removeEventListener('keydown', goBack))
 <template>
   <div class="h-full overflow-y-auto">
     <section
-      class="relative grid h-[270px] grid-cols-[56%_minmax(0,1fr)] overflow-hidden border-b-outline border-ink bg-paper"
+      class="hero-in relative grid h-[270px] grid-cols-[56%_minmax(0,1fr)] grid-rows-1 overflow-hidden border-b-outline border-ink bg-paper"
     >
-      <FocusLines />
-      <div class="cover-panel relative h-full bg-ink pr-[5px]">
+      <FocusLines :boiling="game.session !== null" />
+      <div class="cover-panel cover-panel-outer relative h-full bg-ink pr-[5px]">
         <div class="cover-panel h-full"><GameCover :game="game" /></div>
       </div>
       <div class="relative grid content-center justify-items-center px-4 text-center gap-2">
         <h1
-          class="max-w-full break-words bg-paper px-2 font-display text-[28px] font-extrabold italic leading-[1.1]"
+          class="line-clamp-3 max-w-full break-words bg-paper px-2 pb-0.5 font-display font-extrabold italic leading-[1.1]"
+          :class="game.title.length > LONG_TITLE ? 'text-[22px]' : 'text-[28px]'"
+          :title="game.title"
         >
           {{ game.title }}
         </h1>
         <p class="bg-paper px-2 text-dim">{{ engineLabel(game) }}</p>
-        <PlayButton class="my-1" :game="game" size="large" />
+        <div class="hero-play my-1 grid justify-items-center gap-2">
+          <PlayButton :game="game" size="large" />
+          <UiConfirmButton
+            v-if="game.session !== null"
+            title="Unsaved progress is lost"
+            @confirm="library.stop(game)"
+          >
+            Force stop
+          </UiConfirmButton>
+        </div>
         <p v-if="game.executable === null && game.status !== 'missing'" class="bg-paper px-2">
           Choose the game program under Details to play.
         </p>
@@ -92,7 +108,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', goBack))
         {{ game.path }} is not available. Plug in its drive, or use the button above if you moved
         it.
       </p>
-      <component :is="active.component" v-else :key="`${game.id}-${active.id}`" :game="game" />
+      <div v-else :key="active.id" class="panel-in">
+        <component :is="active.component" :game="game" />
+      </div>
     </div>
   </div>
 </template>

@@ -17,13 +17,13 @@ const navigation = useNavigation()
     class="game-card relative cursor-pointer overflow-hidden rounded-control border-outline border-ink bg-paper shadow-control"
     @click="navigation.openGame(game.id)"
   >
-    <div class="relative aspect-[4/3] border-b-outline border-ink">
-      <GameCover :game="game" />
+    <div class="relative aspect-[4/3] overflow-hidden border-b-outline border-ink">
+      <div class="cover-zoom h-full overflow-hidden"><GameCover :game="game" /></div>
       <span class="absolute left-2 top-2"><StatusBadge :status="game.status" /></span>
       <span class="absolute right-1.5 top-1.5" :class="!game.favorite && 'reveal'">
         <FavoriteButton :game="game" />
       </span>
-      <span class="absolute bottom-2 right-2" :class="!game.isRunning && 'reveal'">
+      <span class="absolute bottom-2 right-2" :class="game.session === null && 'reveal'">
         <PlayButton :game="game" />
       </span>
     </div>
@@ -36,7 +36,9 @@ const navigation = useNavigation()
       >
         {{ game.title }}
       </button>
-      <p class="text-[11px] text-dim">{{ formatPlaytime(game.playSeconds) }}</p>
+      <p class="text-[11px] text-dim">
+        {{ game.session ? 'Playing now' : formatPlaytime(game.playMs) }}
+      </p>
     </div>
   </article>
 </template>

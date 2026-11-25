@@ -6,7 +6,22 @@ import { open } from '@tauri-apps/plugin-dialog'
 export type Engine = 'MV' | 'MZ'
 export type CheatStatus = 'notInstalled' | 'current' | 'outdated' | 'missing'
 export type BackupKind = 'manual' | 'beforePlay' | 'beforeRestore'
+export type PlayStatus = 'unsorted' | 'planned' | 'playing' | 'finished' | 'dropped'
 export type Folder = 'game' | 'saves' | 'backups'
+
+export interface PlaySession {
+  game: string
+  startedAt: number
+  endedAt: number
+  playedMs: number
+  origin: 'launcher' | 'outside'
+}
+
+export interface GameEnded {
+  id: string
+  playedMs: number
+  isEarly: boolean
+}
 
 export interface GameInfo {
   id: string
@@ -19,9 +34,12 @@ export interface GameInfo {
   status: CheatStatus
   cheatVersion: string | null
   executable: string | null
-  isRunning: boolean
+  session: PlaySession | null
+  arguments: string
+  playStatus: PlayStatus
+  notes: string
   favorite: boolean
-  playSeconds: number
+  playMs: number
   lastPlayed: number | null
   addedAt: number
   coverKey: string
@@ -56,6 +74,18 @@ export type DropEvent = { type: 'enter' | 'leave' } | { type: 'drop'; paths: str
 
 export const toolkitVersion = () => invoke<string>('toolkit_version')
 export const listGames = () => invoke<GameInfo[]>('list_games')
+export const listSessions = () => invoke<PlaySession[]>('list_sessions')
+export const stopGame = (id: string) => invoke<null>('stop_game', { id })
+export const setNotes = (id: string, notes: string) => invoke<null>('set_notes', { id, notes })
+
+export const setArguments = (id: string, text: string) =>
+  invoke<null>('set_arguments', { id, arguments: text })
+
+export const setPlayStatus = (id: string, status: PlayStatus) =>
+  invoke<null>('set_play_status', { id, status })
+
+export const setStaysInTray = (stays: boolean) => invoke<null>('set_stays_in_tray', { stays })
+
 export const addGames = (paths: string[]) => invoke<AddResult>('add_games', { paths })
 export const findGames = (path: string) => invoke<FoundGame[]>('find_games', { path })
 export const removeGame = (id: string) => invoke<null>('remove_game', { id })
@@ -100,6 +130,12 @@ export const pickFile = (title: string, name: string, extensions: string[]) =>
   open({ title, filters: [{ name, extensions }] })
 
 export const onLibraryChanged = (handle: () => void) => listen('library-changed', handle)
+
+export const onGameEnded = (handle: (ended: GameEnded) => void) =>
+  listen<GameEnded>('game-ended', ({ payload }) => handle(payload))
+
+export const onPlayFailed = (handle: (reason: string) => void) =>
+  listen<string>('play-failed', ({ payload }) => handle(payload))
 
 export const onGameDrop = (handle: (event: DropEvent) => void) =>
   getCurrentWebview().onDragDropEvent(({ payload }) => {

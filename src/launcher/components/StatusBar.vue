@@ -4,6 +4,7 @@ import UiButton from '@/ui/UiButton.vue'
 
 import { countLabel } from '../format'
 import { useLibrary } from '../library'
+import LiveTimer from './LiveTimer.vue'
 
 const library = useLibrary()
 </script>
@@ -14,7 +15,9 @@ const library = useLibrary()
   >
     <span class="truncate">
       <template v-if="library.running.length > 0">
-        Playing {{ library.running.map((game) => game.title).join(', ') }}
+        <span v-for="game in library.running" :key="game.id" class="mr-4">
+          Playing {{ game.title }} <LiveTimer :game="game" />
+        </span>
       </template>
       <template v-else>{{ countLabel(library.games.length, 'game') }}</template>
     </span>
@@ -28,7 +31,7 @@ const library = useLibrary()
       aria-valuemax="100"
       :aria-valuenow="library.progress"
     >
-      <i class="block h-full bg-accent" :style="{ width: `${library.progress}%` }" />
+      <i class="progress-fill block h-full bg-accent" :style="{ width: `${library.progress}%` }" />
     </div>
     <UiButton v-else-if="library.outdated.length > 0" @click="library.updateAll">
       Update cheats in {{ countLabel(library.outdated.length, 'game') }}

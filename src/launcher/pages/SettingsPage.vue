@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { THEMES } from '@/themes'
+import { THEMES, themeById } from '@/themes'
+import { COLOR_MODE_OPTIONS } from '@/themes/colorMode'
 import UiRow from '@/ui/UiRow.vue'
 import UiSection from '@/ui/UiSection.vue'
 import UiSelect from '@/ui/UiSelect.vue'
@@ -29,6 +30,15 @@ const themeOptions = THEMES.map(({ id, label }) => ({ value: id, label }))
         <UiRow label="Minimize when a game starts">
           <UiToggle v-model="preferences.minimizeOnPlay" label="Minimize when a game starts" />
         </UiRow>
+        <UiRow label="Come back when the game closes">
+          <UiToggle v-model="preferences.restoreAfterPlay" label="Come back when the game closes" />
+        </UiRow>
+        <UiRow
+          label="Keep running in the tray"
+          hint="While a game runs, closing the window always hides it there, so playtime keeps counting."
+        >
+          <UiToggle v-model="preferences.staysInTray" label="Keep running in the tray" />
+        </UiRow>
       </UiSection>
 
       <UiSection title="Adding games">
@@ -41,7 +51,14 @@ const themeOptions = THEMES.map(({ id, label }) => ({ value: id, label }))
         <UiRow label="Theme">
           <UiSelect v-model="preferences.theme" label="Theme" :options="themeOptions" />
         </UiRow>
-        <UiRow label="Effects" hint="Bursts, smoke and springy motion.">
+        <UiRow v-if="themeById(preferences.theme).hasDarkMode" label="Light or dark">
+          <UiSelect
+            v-model="preferences.colorMode"
+            label="Light or dark"
+            :options="COLOR_MODE_OPTIONS"
+          />
+        </UiRow>
+        <UiRow label="Effects" hint="Bursts, smoke and all motion.">
           <UiToggle v-model="preferences.effects" label="Effects" />
         </UiRow>
       </UiSection>

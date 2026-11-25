@@ -1,6 +1,7 @@
 import type { BackupKind, GameInfo } from './api'
 
-const MINUTE = 60
+const SECOND = 1000
+const MINUTE = 60 * SECOND
 const HOUR = 60 * MINUTE
 const KILOBYTE = 1024
 const MEGABYTE = KILOBYTE * 1024
@@ -11,16 +12,31 @@ export function formatDate(milliseconds: number): string {
   return dateFormat.format(milliseconds)
 }
 
-export function formatPlaytime(seconds: number): string {
-  if (seconds === 0) return 'Not played yet'
-  if (seconds < MINUTE) return 'Less than a minute'
-  if (seconds < HOUR) return `${Math.floor(seconds / MINUTE)} min`
-  return `${(seconds / HOUR).toFixed(1)} h`
+export function formatDuration(milliseconds: number): string {
+  if (milliseconds === 0) return '0 min'
+  if (milliseconds < MINUTE) return 'Under 1 min'
+  const hours = Math.floor(milliseconds / HOUR)
+  const minutes = Math.floor((milliseconds % HOUR) / MINUTE)
+  if (hours === 0) return `${minutes} min`
+  return minutes === 0 ? `${hours} h` : `${hours} h ${minutes} min`
 }
 
-export function playSummary({ isRunning, playSeconds, lastPlayed }: GameInfo): string {
-  if (isRunning) return 'Playing now'
-  const playtime = formatPlaytime(playSeconds)
+export function formatPlaytime(milliseconds: number): string {
+  return milliseconds === 0 ? 'Not played yet' : formatDuration(milliseconds)
+}
+
+const pad = (value: number) => String(value).padStart(2, '0')
+
+export function formatClock(milliseconds: number): string {
+  const hours = Math.floor(milliseconds / HOUR)
+  const minutes = Math.floor((milliseconds % HOUR) / MINUTE)
+  const seconds = Math.floor((milliseconds % MINUTE) / SECOND)
+  return hours > 0 ? `${hours}:${pad(minutes)}:${pad(seconds)}` : `${minutes}:${pad(seconds)}`
+}
+
+export function playSummary({ session, playMs, lastPlayed }: GameInfo): string {
+  if (session !== null) return 'Playing now'
+  const playtime = formatPlaytime(playMs)
   return lastPlayed === null ? playtime : `${playtime}, last played ${formatDate(lastPlayed)}`
 }
 
