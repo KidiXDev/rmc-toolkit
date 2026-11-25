@@ -16,6 +16,7 @@ import { useNavigation } from '../navigation'
 import ActivityTab from './ActivityTab.vue'
 import CheatsTab from './CheatsTab.vue'
 import DetailsTab from './DetailsTab.vue'
+import LiveTab from './LiveTab.vue'
 import LogsTab from './LogsTab.vue'
 import SavesTab from './SavesTab.vue'
 
@@ -23,6 +24,7 @@ defineProps<{ game: GameInfo }>()
 
 const TABS = [
   { id: 'cheats', label: 'Cheats', component: CheatsTab },
+  { id: 'live', label: 'Live', component: LiveTab },
   { id: 'activity', label: 'Activity', component: ActivityTab },
   { id: 'saves', label: 'Saves', component: SavesTab },
   { id: 'details', label: 'Details', component: DetailsTab },
@@ -48,7 +50,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', goBack))
 <template>
   <div class="h-full overflow-y-auto">
     <section
-      class="hero-in relative grid h-[270px] grid-cols-[56%_minmax(0,1fr)] grid-rows-1 overflow-hidden border-b-outline border-ink bg-paper"
+      class="hero-in relative grid grid-cols-[56%_minmax(0,1fr)] grid-rows-1 overflow-hidden border-b-outline border-ink bg-paper"
+      :class="active.id === 'live' ? 'h-[210px]' : 'h-[270px]'"
     >
       <FocusLines :boiling="game.session !== null" />
       <div class="cover-panel cover-panel-outer relative h-full bg-ink pr-[5px]">
@@ -87,10 +90,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', goBack))
       </div>
     </section>
 
-    <div
-      class="grid grid-cols-[minmax(0,1fr)_auto] items-center border-b-hairline px-5 py-2.5 gap-4"
-    >
-      <div class="grid grid-flow-col justify-start gap-1.5" role="tablist" aria-label="Game">
+    <div class="flex flex-wrap items-center justify-between border-b-hairline px-5 py-2.5 gap-2">
+      <div class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Game">
         <UiButton
           v-for="tab in TABS"
           :key="tab.id"
@@ -105,7 +106,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', goBack))
       <span class="text-dim">{{ playSummary(game) }}</span>
     </div>
 
-    <div class="max-w-[720px] px-5 py-4" role="tabpanel" :aria-label="active.label">
+    <div
+      class="px-5 py-4"
+      :class="active.id === 'live' ? 'max-w-[880px]' : 'max-w-[720px]'"
+      role="tabpanel"
+      :aria-label="active.label"
+    >
       <p v-if="game.status === 'missing'" class="text-dim">
         {{ game.path }} is not available. Plug in its drive, or use the button above if you moved
         it.

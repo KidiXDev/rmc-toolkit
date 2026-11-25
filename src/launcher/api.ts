@@ -3,6 +3,8 @@ import { listen } from '@tauri-apps/api/event'
 import { getCurrentWebview } from '@tauri-apps/api/webview'
 import { open } from '@tauri-apps/plugin-dialog'
 
+import type { LiveAction, LiveQuery, LiveReply } from '@/engine/liveProtocol'
+
 export type Engine = 'MV' | 'MZ'
 export type CheatStatus = 'notInstalled' | 'current' | 'outdated' | 'missing'
 export type BackupKind = 'manual' | 'beforePlay' | 'beforeRestore'
@@ -90,6 +92,8 @@ export const locateGame = (id: string, path: string) => invoke<null>('locate_gam
 export const renameGame = (id: string, title: string) => invoke<null>('rename_game', { id, title })
 export const installCheats = (id: string) => invoke<null>('install_cheats', { id })
 export const gameLog = (id: string) => invoke<string>('game_log', { id })
+export const liveGame = (id: string, query: LiveQuery, session?: string, action?: LiveAction) =>
+  invoke<LiveReply | null>('live_game', { id, query, session, action })
 export const clearLog = (id: string) => invoke<null>('clear_log', { id })
 export const listBackups = (id: string) => invoke<Backup[]>('list_backups', { id })
 export const createBackup = (id: string) => invoke<Backup>('create_backup', { id })
