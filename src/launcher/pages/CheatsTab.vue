@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 import UiButton from '@/ui/UiButton.vue'
 import UiCheckbox from '@/ui/UiCheckbox.vue'
 import UiConfirmButton from '@/ui/UiConfirmButton.vue'
 import UiSection from '@/ui/UiSection.vue'
 
-import { cheatErrors, type CheatError, type GameInfo } from '../api'
+import type { GameInfo } from '../api'
 import { cheatLabel } from '../format'
 import { useLibrary } from '../library'
 
-const { game } = defineProps<{ game: GameInfo }>()
+defineProps<{ game: GameInfo }>()
 
 const SHORTCUTS = [
   { keys: 'Ctrl+C', action: 'Show or hide the cheat window' },
@@ -22,11 +22,6 @@ const SHORTCUTS = [
 
 const library = useLibrary()
 const removeSettings = ref(false)
-const errors = ref<CheatError[]>([])
-
-onMounted(async () => {
-  errors.value = await cheatErrors(game.id).catch(() => [])
-})
 </script>
 
 <template>
@@ -67,20 +62,5 @@ onMounted(async () => {
       {{ shortcut.action }}
     </div>
     <p class="pt-1.5 text-[12px] text-dim">You can change these in the cheat window.</p>
-  </UiSection>
-
-  <UiSection v-if="errors.length > 0" title="Problems reported by the cheat window">
-    <details
-      v-for="error in errors"
-      :key="error.time + error.message"
-      class="border-b-hairline py-1"
-    >
-      <summary class="cursor-pointer truncate">
-        {{ error.message.split('\n')[0] }}
-      </summary>
-      <pre class="m-0 select-text overflow-x-auto py-1 font-mono text-[11px] text-dim"
-        >{{ error.time }} {{ error.version }}
-{{ error.message }}</pre>
-    </details>
   </UiSection>
 </template>

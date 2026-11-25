@@ -63,6 +63,15 @@ const themeOptions = THEMES.map(({ id, label }) => ({ value: id, label }))
         </UiRow>
       </UiSection>
 
+      <UiSection title="Developer">
+        <UiRow
+          label="Developer mode"
+          hint="Games you start from here write a detailed log, for reporting problems. Off keeps it short."
+        >
+          <UiToggle v-model="preferences.developerMode" label="Developer mode" />
+        </UiRow>
+      </UiSection>
+
       <p class="text-[12px] text-dim">RMC Toolkit {{ library.version }}</p>
     </div>
   </div>

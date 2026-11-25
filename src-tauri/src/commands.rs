@@ -2,7 +2,6 @@ use std::fs;
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tauri::ipc::Response;
 use tauri::{AppHandle, State};
 
@@ -13,12 +12,11 @@ use crate::files::now_millis;
 use crate::game::{Engine, Game};
 use crate::launcher::Launcher;
 use crate::library::{Entry, PlayStatus};
+use crate::logs;
 use crate::patcher::{self, InstallState};
 use crate::saves::{Backup, BackupKind};
 use crate::scan;
 use crate::tracker::Session;
-
-const ERROR_LOG: &str = "rmc-errors.json";
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -256,12 +254,20 @@ pub async fn uninstall_cheats(
 }
 
 #[tauri::command]
-pub async fn cheat_errors(launcher: State<'_, Launcher>, id: String) -> Result<Vec<Value>> {
-    let log = launcher.game(&id)?.settings_folder().join(ERROR_LOG);
-    let text = fs::read_to_string(log).unwrap_or_default();
-    Ok(serde_json::from_str(&text).unwrap_or_default())
+pub async fn game_log(launcher: State<'_, Launcher>, id: String) -> Result<String> {
+    let game = launcher.game(&id)?;
+    let program = launcher.executable(&launcher.entry(&id)?, &game);
+    Ok(logs::report(
+        &game,
+        program.as_deref(),
+        launcher.is_developer_mode(),
+    ))
 }
 
+#[tauri::command]
+pub async fn clear_log(launcher: State<'_, Launcher>, id: String) -> Result<()> {
+    logs::clear(&launcher.game(&id)?)
+}
 #[tauri::command]
 pub async fn list_sessions(launcher: State<'_, Launcher>) -> Result<Vec<Session>> {
     Ok(launcher.past_sessions())
@@ -297,6 +303,12 @@ pub async fn set_notes(launcher: State<'_, Launcher>, id: String, notes: String)
 #[tauri::command]
 pub async fn set_stays_in_tray(launcher: State<'_, Launcher>, stays: bool) -> Result<()> {
     launcher.set_stays_in_tray(stays);
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn set_developer_mode(launcher: State<'_, Launcher>, enabled: bool) -> Result<()> {
+    launcher.set_developer_mode(enabled);
     Ok(())
 }
 

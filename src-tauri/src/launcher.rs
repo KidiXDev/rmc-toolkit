@@ -22,6 +22,7 @@ pub struct Launcher {
     processes: Mutex<ProcessTable>,
     last_checkpoint: Mutex<u64>,
     stays_in_tray: AtomicBool,
+    developer_mode: AtomicBool,
 }
 
 impl Launcher {
@@ -37,6 +38,7 @@ impl Launcher {
             processes: Mutex::new(ProcessTable::new()),
             last_checkpoint: Mutex::default(),
             stays_in_tray: AtomicBool::new(false),
+            developer_mode: AtomicBool::new(false),
             data,
         })
     }
@@ -97,6 +99,14 @@ impl Launcher {
         self.stays_in_tray.store(stays, Ordering::Relaxed);
     }
 
+    pub fn set_developer_mode(&self, enabled: bool) {
+        self.developer_mode.store(enabled, Ordering::Relaxed);
+    }
+
+    pub fn is_developer_mode(&self) -> bool {
+        self.developer_mode.load(Ordering::Relaxed)
+    }
+
     pub fn should_hide_on_close(&self) -> bool {
         self.stays_in_tray.load(Ordering::Relaxed) || !lock(&self.tracker).is_idle()
     }
@@ -106,8 +116,9 @@ impl Launcher {
         let entry = self.entry(id)?;
         let program = self.executable(&entry, &game).ok_or(Error::NoExecutable)?;
 
+        let arguments = split_arguments(&entry.arguments);
         let process: Option<Box<dyn RunningProcess>> =
-            match ProcessTree::start(&program, &split_arguments(&entry.arguments)) {
+            match ProcessTree::start(&program, &arguments, self.is_developer_mode()) {
                 Ok(tree) => Some(Box::new(tree)),
                 Err(Error::NeedsElevation) => {
                     tauri_plugin_opener::open_path(&program, None::<&str>)

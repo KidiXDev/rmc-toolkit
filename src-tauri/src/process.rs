@@ -6,15 +6,19 @@ use process_wrap::std::{ChildWrapper, CommandWrap};
 use crate::error::{Error, Result};
 use crate::tracker::RunningProcess;
 
+const DEVELOPER_VARIABLE: &str = "RMC_DEVELOPER_MODE";
 const ELEVATION_REQUIRED: i32 = 740;
 
 pub struct ProcessTree(Box<dyn ChildWrapper>);
 
 impl ProcessTree {
-    pub fn start(program: &Path, arguments: &[String]) -> Result<Self> {
+    pub fn start(program: &Path, arguments: &[String], developer_mode: bool) -> Result<Self> {
         let folder = program.parent().ok_or(Error::NoExecutable)?;
         let mut command = CommandWrap::with_new(program, |command| {
-            command.args(arguments).current_dir(folder);
+            command
+                .args(arguments)
+                .env(DEVELOPER_VARIABLE, if developer_mode { "1" } else { "0" })
+                .current_dir(folder);
         });
         #[cfg(windows)]
         command.wrap(process_wrap::std::JobObject);
@@ -93,7 +97,7 @@ mod tests {
     #[cfg(windows)]
     fn shell(script: &str) -> ProcessTree {
         let program = Path::new(r"C:\Windows\System32\cmd.exe");
-        ProcessTree::start(program, &["/c".to_owned(), script.to_owned()]).unwrap()
+        ProcessTree::start(program, &["/c".to_owned(), script.to_owned()], true).unwrap()
     }
 
     #[cfg(windows)]
@@ -103,6 +107,21 @@ mod tests {
             std::thread::sleep(Duration::from_millis(50));
         }
         started.elapsed()
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn tells_the_game_about_developer_mode() {
+        for (developer_mode, expected) in [(true, "1"), (false, "0")] {
+            let temp = crate::testing::TempFolder::new();
+            let file = temp.path().join("mode.txt");
+            let program = Path::new(r"C:\Windows\System32\cmd.exe");
+            let script = format!(">{} echo %RMC_DEVELOPER_MODE%", file.display());
+            let arguments = ["/c".to_owned(), script];
+            let mut tree = ProcessTree::start(program, &arguments, developer_mode).unwrap();
+            wait_until_stopped(&mut tree, Duration::from_secs(5));
+            assert_eq!(std::fs::read_to_string(file).unwrap().trim(), expected);
+        }
     }
 
     #[cfg(windows)]

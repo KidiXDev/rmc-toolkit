@@ -16,6 +16,7 @@ import { useNavigation } from '../navigation'
 import ActivityTab from './ActivityTab.vue'
 import CheatsTab from './CheatsTab.vue'
 import DetailsTab from './DetailsTab.vue'
+import LogsTab from './LogsTab.vue'
 import SavesTab from './SavesTab.vue'
 
 defineProps<{ game: GameInfo }>()
@@ -25,6 +26,7 @@ const TABS = [
   { id: 'activity', label: 'Activity', component: ActivityTab },
   { id: 'saves', label: 'Saves', component: SavesTab },
   { id: 'details', label: 'Details', component: DetailsTab },
+  { id: 'logs', label: 'Logs', component: LogsTab },
 ] as const
 
 const LONG_TITLE = 36

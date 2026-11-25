@@ -64,12 +64,6 @@ export interface Backup {
   bytes: number
 }
 
-export interface CheatError {
-  time: string
-  version: string
-  message: string
-}
-
 export type DropEvent = { type: 'enter' | 'leave' } | { type: 'drop'; paths: string[] }
 
 export const toolkitVersion = () => invoke<string>('toolkit_version')
@@ -86,13 +80,17 @@ export const setPlayStatus = (id: string, status: PlayStatus) =>
 
 export const setStaysInTray = (stays: boolean) => invoke<null>('set_stays_in_tray', { stays })
 
+export const setDeveloperMode = (enabled: boolean) =>
+  invoke<null>('set_developer_mode', { enabled })
+
 export const addGames = (paths: string[]) => invoke<AddResult>('add_games', { paths })
 export const findGames = (path: string) => invoke<FoundGame[]>('find_games', { path })
 export const removeGame = (id: string) => invoke<null>('remove_game', { id })
 export const locateGame = (id: string, path: string) => invoke<null>('locate_game', { id, path })
 export const renameGame = (id: string, title: string) => invoke<null>('rename_game', { id, title })
 export const installCheats = (id: string) => invoke<null>('install_cheats', { id })
-export const cheatErrors = (id: string) => invoke<CheatError[]>('cheat_errors', { id })
+export const gameLog = (id: string) => invoke<string>('game_log', { id })
+export const clearLog = (id: string) => invoke<null>('clear_log', { id })
 export const listBackups = (id: string) => invoke<Backup[]>('list_backups', { id })
 export const createBackup = (id: string) => invoke<Backup>('create_backup', { id })
 

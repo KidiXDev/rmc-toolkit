@@ -30,6 +30,7 @@ export interface Preferences {
   installOnAdd: boolean
   restoreAfterPlay: boolean
   staysInTray: boolean
+  developerMode: boolean
 }
 
 const DEFAULTS: Preferences = {
@@ -45,6 +46,7 @@ const DEFAULTS: Preferences = {
   installOnAdd: false,
   restoreAfterPlay: false,
   staysInTray: false,
+  developerMode: false,
 }
 
 function oneOf<T extends string>(options: readonly T[], value: unknown, fallback: T): T {
@@ -72,6 +74,7 @@ export function sanitizePreferences(raw: unknown): Preferences {
     installOnAdd: flag(saved.installOnAdd, DEFAULTS.installOnAdd),
     restoreAfterPlay: flag(saved.restoreAfterPlay, DEFAULTS.restoreAfterPlay),
     staysInTray: flag(saved.staysInTray, DEFAULTS.staysInTray),
+    developerMode: flag(saved.developerMode, DEFAULTS.developerMode),
   }
 }
 

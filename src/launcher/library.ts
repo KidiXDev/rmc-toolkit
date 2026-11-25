@@ -153,6 +153,12 @@ export const useLibrary = defineStore('library', () => {
     { immediate: true },
   )
 
+  watch(
+    () => preferences.developerMode,
+    (enabled) => attempt(() => api.setDeveloperMode(enabled)),
+    { immediate: true },
+  )
+
   const install = (game: GameInfo) =>
     change(
       game.id,

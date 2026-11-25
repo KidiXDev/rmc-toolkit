@@ -7,6 +7,7 @@ mod files;
 mod game;
 mod launcher;
 mod library;
+mod logs;
 mod patcher;
 mod process;
 mod processes;
@@ -64,10 +65,12 @@ pub fn run() -> tauri::Result<()> {
             commands::game_cover,
             commands::install_cheats,
             commands::uninstall_cheats,
-            commands::cheat_errors,
+            commands::game_log,
+            commands::clear_log,
             commands::play_game,
             commands::stop_game,
             commands::set_stays_in_tray,
+            commands::set_developer_mode,
             commands::open_folder,
             commands::list_backups,
             commands::create_backup,
