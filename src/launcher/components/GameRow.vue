@@ -5,6 +5,7 @@ import { useNavigation } from '../navigation'
 import FavoriteButton from './FavoriteButton.vue'
 import GameCover from './GameCover.vue'
 import PlayButton from './PlayButton.vue'
+import PlayStatusBadge from './PlayStatusBadge.vue'
 import StatusBadge from './StatusBadge.vue'
 
 defineProps<{ game: GameInfo }>()
@@ -20,9 +21,14 @@ const navigation = useNavigation()
     <span class="h-12 w-16 overflow-hidden rounded-[6px] border-hairline border-ink">
       <GameCover :game="game" />
     </span>
-    <button type="button" class="grid min-w-0 text-left" @click.stop="navigation.openGame(game.id)">
-      <span class="truncate text-[14px] font-bold">{{ game.title }}</span>
-      <span class="text-[11px] text-dim">{{ engineLabel(game) }}</span>
+    <button type="button" class="min-w-0 text-left" @click.stop="navigation.openGame(game.id)">
+      <span class="grid min-w-0">
+        <span class="truncate text-sm font-bold">{{ game.title }}</span>
+        <span class="grid grid-flow-col items-center justify-start gap-2">
+          <span class="text-xs text-dim">{{ engineLabel(game) }}</span>
+          <PlayStatusBadge :status="game.playStatus" />
+        </span>
+      </span>
     </button>
     <span><StatusBadge :status="game.status" /></span>
     <span class="text-[12px] text-dim">{{ formatPlaytime(game.playMs) }}</span>

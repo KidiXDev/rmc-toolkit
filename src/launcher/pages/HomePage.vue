@@ -24,21 +24,30 @@ const navigation = useNavigation()
 const byRecent = computed(() => arrangeGames(library.games, '', 'all', 'recent'))
 const featured = computed(() => byRecent.value[0])
 
+const playing = computed(() =>
+  byRecent.value
+    .filter((game) => game.playStatus === 'playing' && game.id !== featured.value?.id)
+    .slice(0, RECENT_LIMIT),
+)
+
+const playingIds = computed(() => new Set(playing.value.map((game) => game.id)))
+
 const recent = computed(() =>
   byRecent.value
     .slice(1)
-    .filter((game) => game.lastPlayed !== null)
+    .filter((game) => game.lastPlayed !== null && !playingIds.value.has(game.id))
     .slice(0, RECENT_LIMIT),
 )
 
 const planned = computed(() =>
   arrangeGames(library.games, '', 'all', 'title')
-    .filter((game) => game.playStatus === 'planned')
+    .filter((game) => game.playStatus === 'planned' && game.id !== featured.value?.id)
     .slice(0, RECENT_LIMIT),
 )
 
 const shelves = computed(() =>
   [
+    { title: 'Currently playing', games: playing.value },
     { title: 'Jump back in', games: recent.value },
     { title: 'Planned', games: planned.value },
   ].filter((shelf) => shelf.games.length > 0),

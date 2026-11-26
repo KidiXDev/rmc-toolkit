@@ -5,6 +5,7 @@ import { useNavigation } from '../navigation'
 import FavoriteButton from './FavoriteButton.vue'
 import GameCover from './GameCover.vue'
 import PlayButton from './PlayButton.vue'
+import PlayStatusBadge from './PlayStatusBadge.vue'
 import StatusBadge from './StatusBadge.vue'
 
 defineProps<{ game: GameInfo }>()
@@ -36,9 +37,12 @@ const navigation = useNavigation()
       >
         {{ game.title }}
       </button>
-      <p class="text-[11px] text-dim">
-        {{ game.session ? 'Playing now' : formatPlaytime(game.playMs) }}
-      </p>
+      <div class="mt-0.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-1.5">
+        <p class="truncate text-xs text-dim">
+          {{ game.session ? 'Playing now' : formatPlaytime(game.playMs) }}
+        </p>
+        <PlayStatusBadge :status="game.playStatus" />
+      </div>
     </div>
   </article>
 </template>
