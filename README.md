@@ -1,16 +1,17 @@
-# RPG Maker MV/MZ Cheat Toolkit
+# RPG Maker Cheat Toolkit
 
-A small cheat window for RPG Maker MV and MZ games, with a game launcher that installs it for you.
+A game launcher and in-game cheat menu for RPG Maker MV, MZ and VX Ace. VX Ace uses the Windows RGSS3 runtime.
 
 ## Launcher
 
 1. Download `rmc-toolkit.exe` from the releases page and open it.
 2. Drop your game folders on the window, or click **Find games** to search a folder.
 3. Open a game, click **Install cheats**, then **Play**.
-4. Start a new game or load a save, then open the **Live** tab in the launcher's game detail page.
+4. For MV and MZ, start a new game or load a save, then open the **Live** tab in the launcher.
    Use it to edit your party and inventory, navigate the map, control battles, and edit switches
    and variables. Drag the map to look around and use **Follow player** to recenter it.
    To open the in-game cheat window, press **Ctrl+C** or click the **RMC** button in the game.
+   For VX Ace, press **Ctrl+C** inside the game to open the Ruby cheat menu.
 
 The launcher also:
 
@@ -24,11 +25,19 @@ The launcher also:
 - backs up saves before you play, and restores them when you need it
 - warns when a game's engine is too old, and has a **Logs** tab you can copy into a bug report (turn on **Developer mode** in Settings for a detailed log)
 
-**Remove cheats** puts the game's original files back. Games that are packed into a single file are not supported.
+**Remove cheats** puts the game's original files back. MV and MZ games need a visible `js` folder.
 
 The launcher needs WebView2, which is part of Windows 11 and of updated Windows 10. Save backups are kept in `%LOCALAPPDATA%\dev.kidix.rmc-toolkit\backups`.
 
-### Manual install
+### VX Ace
+
+The launcher supports loose `Scripts.rvdata2` files and packed `Game.rgss3a` archives. It keeps an original `.rmc-backup` copy next to the patched file for removal. Installing cheats in a packed game temporarily needs space for two additional copies of the archive.
+
+The in-game menu includes party and stats editing, items, battle controls, switches, variables, teleportation and toggles. Use the arrow keys, **Enter**, and **Esc** to navigate. Waypoints are kept in `rmvc.cfg`, and the launcher backs up standard `SaveNN.rvdata2` slots in the game folder.
+
+Games already patched by the standalone toolkit can still be added and played. Restore the original game files before switching to launcher-managed cheats.
+
+### Manual install for MV and MZ
 
 1. Create a `cheat` folder next to the game's `index.html` (inside `www` for most MV games) and put `cheat.js` in it.
 2. Add this to the end of `js/main.js`:
@@ -43,7 +52,7 @@ The launcher needs WebView2, which is part of Windows 11 and of updated Windows 
    /* === RMC-CHEAT-TOOLKIT:END === */
    ```
 
-## Cheats
+## MV and MZ cheats
 
 | Tab       | What it does                                                       |
 | :-------- | :----------------------------------------------------------------- |
@@ -86,5 +95,7 @@ bun run build:launcher   # src-tauri/target/release/rmc-toolkit.exe
 Rust tests: `cargo test` in `src-tauri`, after `bun run build:overlay`.
 
 ## Credits
+
+The VX Ace Ruby menu comes from the [RPG Maker VX Ace Cheat Toolkit](https://github.com/KidiXDev/RPG-Maker-ACE-Cheat-Toolkit).
 
 The Sakuga theme and its effects are based on [Sakuga VFX](https://github.com/finktheartist/sakuga-vfx). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
