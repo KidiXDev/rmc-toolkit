@@ -38,10 +38,7 @@ async function run(action: () => Promise<unknown>, done: string) {
 }
 
 onMounted(() => library.attempt(load))
-watch(
-  () => game.session !== null,
-  () => library.attempt(load),
-)
+watch([() => game.session !== null, () => library.backupRevision], () => library.attempt(load))
 </script>
 
 <template>

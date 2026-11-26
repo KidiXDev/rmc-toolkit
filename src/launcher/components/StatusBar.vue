@@ -3,10 +3,13 @@ import { vFx } from '@/themes/activeEffects'
 import UiButton from '@/ui/UiButton.vue'
 
 import { countLabel } from '../format'
+import { isLiveReady } from '../gamePage'
 import { useLibrary } from '../library'
+import { useNavigation } from '../navigation'
 import LiveTimer from './LiveTimer.vue'
 
 const library = useLibrary()
+const navigation = useNavigation()
 </script>
 
 <template>
@@ -15,9 +18,20 @@ const library = useLibrary()
   >
     <span class="truncate">
       <template v-if="library.running.length > 0">
-        <span v-for="game in library.running" :key="game.id" class="mr-4">
-          Playing {{ game.title }} <LiveTimer :game="game" />
-        </span>
+        <button
+          v-for="game in library.running"
+          :key="game.id"
+          type="button"
+          class="smooth mr-3 inline-block rounded-control px-1.5 py-0.5 text-left hover:bg-soft"
+          :title="`Open ${game.title}`"
+          @click="navigation.openGame(game.id, isLiveReady(game) ? 'live' : 'overview')"
+        >
+          <span class="grid grid-flow-col items-center gap-1.5">
+            <span class="playing-dot !h-2 !w-2" aria-hidden="true" />
+            <span>Playing {{ game.title }}</span>
+            <LiveTimer :game="game" />
+          </span>
+        </button>
       </template>
       <template v-else>{{ countLabel(library.games.length, 'game') }}</template>
     </span>

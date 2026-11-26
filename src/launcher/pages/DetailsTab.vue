@@ -4,19 +4,14 @@ import UiCommitField from '@/ui/UiCommitField.vue'
 import UiConfirmButton from '@/ui/UiConfirmButton.vue'
 import UiRow from '@/ui/UiRow.vue'
 import UiSection from '@/ui/UiSection.vue'
-import UiSelect from '@/ui/UiSelect.vue'
-import UiTextArea from '@/ui/UiTextArea.vue'
 
 import type { GameInfo } from '../api'
 import { engineLabel, formatDate } from '../format'
 import { useLibrary } from '../library'
-import { PLAY_STATUS_LABELS, PLAY_STATUSES } from '../librarySort'
 
 defineProps<{ game: GameInfo }>()
 
 const library = useLibrary()
-
-const statusOptions = PLAY_STATUSES.map((value) => ({ value, label: PLAY_STATUS_LABELS[value] }))
 </script>
 
 <template>
@@ -29,26 +24,11 @@ const statusOptions = PLAY_STATUSES.map((value) => ({ value, label: PLAY_STATUS_
         @commit="(title) => library.rename(game, title)"
       />
     </UiRow>
-    <UiRow label="Status">
-      <UiSelect
-        label="Status"
-        :model-value="game.playStatus"
-        :options="statusOptions"
-        @update:model-value="(status) => library.setPlayStatus(game, status)"
-      />
-    </UiRow>
     <UiRow label="Cover">
       <UiButton @click="library.chooseCover(game)">Choose image</UiButton>
       <UiButton @click="library.resetCover(game)">Use game art</UiButton>
     </UiRow>
     <UiRow label="Added">{{ formatDate(game.addedAt) }}</UiRow>
-    <UiTextArea
-      class="mt-1"
-      label="Notes"
-      placeholder="Notes about this game"
-      :value="game.notes"
-      @commit="(notes) => library.setNotes(game, notes)"
-    />
   </UiSection>
 
   <UiSection title="Starting the game">

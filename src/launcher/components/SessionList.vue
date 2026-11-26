@@ -5,19 +5,22 @@ import type { PlaySession } from '../api'
 import { formatDate, formatDuration } from '../format'
 import { useLibrary } from '../library'
 
-const { sessions, showGame = false } = defineProps<{
+const {
+  sessions,
+  showGame = false,
+  limit = 40,
+} = defineProps<{
   sessions: PlaySession[]
   showGame?: boolean
+  limit?: number
 }>()
-
-const LIMIT = 40
 
 const library = useLibrary()
 
 const rows = computed(() =>
   [...sessions]
     .sort((a, b) => b.startedAt - a.startedAt)
-    .slice(0, LIMIT)
+    .slice(0, limit)
     .map((session) => ({
       key: `${session.game}-${session.startedAt}`,
       title: library.gameById(session.game)?.title ?? 'Removed game',

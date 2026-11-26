@@ -28,6 +28,7 @@ export const useLibrary = defineStore('library', () => {
   const version = ref('')
   const isLoaded = ref(false)
   const busyIds = ref(new Set<string>())
+  const backupRevision = ref(0)
   const progress = ref<number | null>(null)
   const found = ref<FoundGame[] | null>(null)
   const isScanning = ref(false)
@@ -205,6 +206,12 @@ export const useLibrary = defineStore('library', () => {
   const openFolder = (game: GameInfo, folder: api.Folder) =>
     attempt(() => api.openFolder(game.id, folder))
 
+  async function backupSaves(game: GameInfo): Promise<boolean> {
+    const succeeded = await change(game.id, () => api.createBackup(game.id), 'Saves backed up')
+    if (succeeded) backupRevision.value += 1
+    return succeeded
+  }
+
   async function updateAll() {
     const targets = outdated.value
     let updated = 0
@@ -226,6 +233,7 @@ export const useLibrary = defineStore('library', () => {
     version,
     isLoaded,
     busyIds,
+    backupRevision,
     progress,
     found,
     isScanning,
@@ -259,6 +267,7 @@ export const useLibrary = defineStore('library', () => {
     chooseCover,
     resetCover,
     openFolder,
+    backupSaves,
     updateAll,
   }
 })
