@@ -75,7 +75,7 @@ onBeforeUnmount(() => {
           <Transition name="pop" :duration="{ enter: 260, leave: 130 }">
             <div
               v-if="isDropTarget"
-              class="pointer-events-none absolute bottom-0 left-0 right-0 top-0 grid place-items-center bg-scrim"
+              class="pointer-events-none absolute bottom-0 left-0 right-0 top-0 z-20 grid place-items-center bg-scrim"
             >
               <span
                 class="pop-body rounded-window border-outline border-ink bg-paper px-8 py-5 font-display text-[28px] font-extrabold italic shadow-window"
@@ -94,7 +94,7 @@ onBeforeUnmount(() => {
       <TransitionGroup
         name="toast"
         tag="div"
-        class="pointer-events-none fixed bottom-12 left-[248px]"
+        class="pointer-events-none fixed bottom-12 left-[248px] z-30"
       >
         <UiToast
           v-for="toast in library.toasts"

@@ -91,7 +91,7 @@ onBeforeUnmount(stopListening)
       <div
         v-if="open"
         ref="popup"
-        class="pointer-events-auto fixed left-0 top-0"
+        class="pointer-events-auto fixed left-0 top-0 z-40"
         :style="{
           transform: `translate(${place.left}px, ${place.top}px) scale(${place.scale})`,
           transformOrigin: '0 0',
