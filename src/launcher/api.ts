@@ -5,8 +5,8 @@ import { open } from '@tauri-apps/plugin-dialog'
 
 import type { LiveAction, LiveQuery, LiveReply } from '@/engine/liveProtocol'
 
-export type Engine = 'MV' | 'MZ'
-export type CheatStatus = 'notInstalled' | 'current' | 'outdated' | 'missing'
+export type Engine = 'MV' | 'MZ' | 'VX Ace'
+export type CheatStatus = 'notInstalled' | 'current' | 'outdated' | 'standalone' | 'missing'
 export type BackupKind = 'manual' | 'beforePlay' | 'beforeRestore'
 export type PlayStatus = 'unsorted' | 'planned' | 'playing' | 'finished' | 'dropped'
 export type Folder = 'game' | 'saves' | 'backups'

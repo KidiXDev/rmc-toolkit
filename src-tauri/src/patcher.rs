@@ -3,8 +3,9 @@ use std::path::{Path, PathBuf};
 
 use crate::error::{AtPath, Result};
 use crate::files::{remove_file, remove_folder, write_atomically};
-use crate::game::Game;
+use crate::game::{Engine, Game};
 use crate::live::ENDPOINT_FILE;
+use crate::vx_ace;
 
 const BUNDLE: &[u8] = include_bytes!("../../dist/cheat.js");
 const BUNDLE_NAME: &str = "cheat.js";
@@ -28,6 +29,7 @@ pub enum InstallState {
     NotInstalled,
     Current(String),
     Outdated(String),
+    Standalone,
 }
 
 pub fn bundled_version() -> String {
@@ -35,6 +37,9 @@ pub fn bundled_version() -> String {
 }
 
 pub fn state(game: &Game) -> Result<InstallState> {
+    if game.engine == Engine::VxAce {
+        return vx_ace::state(game.root());
+    }
     let main_script = game.main_script();
     let script = fs::read(&main_script).at(&main_script)?;
     let has_loader = find(&script, MARKER_START).is_some();
@@ -48,6 +53,9 @@ pub fn state(game: &Game) -> Result<InstallState> {
 }
 
 pub fn install(game: &Game) -> Result<()> {
+    if game.engine == Engine::VxAce {
+        return vx_ace::install(game.root());
+    }
     let main_script = game.main_script();
     let original = strip_loader(&fs::read(&main_script).at(&main_script)?);
 
@@ -59,6 +67,9 @@ pub fn install(game: &Game) -> Result<()> {
 }
 
 pub fn uninstall(game: &Game, remove_settings: bool) -> Result<()> {
+    if game.engine == Engine::VxAce {
+        return vx_ace::uninstall(game.root(), remove_settings);
+    }
     let main_script = game.main_script();
     let current = fs::read(&main_script).at(&main_script)?;
     let original = strip_loader(&current);

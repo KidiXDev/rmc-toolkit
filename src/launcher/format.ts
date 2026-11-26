@@ -60,6 +60,8 @@ export function cheatLabel({ status, cheatVersion }: GameInfo): string {
       return `Cheats ${cheatVersion ?? ''} installed`
     case 'outdated':
       return cheatVersion ? `Cheats ${cheatVersion} need an update` : 'Cheats need a repair'
+    case 'standalone':
+      return 'Standalone VX Ace cheats installed'
     case 'missing':
       return 'Game folder not found'
     case 'notInstalled':

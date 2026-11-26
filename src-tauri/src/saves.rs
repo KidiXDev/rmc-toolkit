@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 
@@ -41,11 +41,53 @@ pub struct Backup {
 pub struct SaveVault {
     saves: PathBuf,
     backups: PathBuf,
+    root_saves: bool,
 }
 
 impl SaveVault {
     pub fn new(saves: PathBuf, backups: PathBuf) -> Self {
-        Self { saves, backups }
+        Self {
+            saves,
+            backups,
+            root_saves: false,
+        }
+    }
+
+    pub fn vx_ace(mut self) -> Self {
+        self.root_saves = true;
+        self
+    }
+
+    fn files_in(&self, folder: &Path) -> Result<Vec<PathBuf>> {
+        if !self.root_saves {
+            return relative_files(folder);
+        }
+        if !folder.is_dir() {
+            return Ok(Vec::new());
+        }
+        let mut files = Vec::new();
+        for entry in fs::read_dir(folder).at(folder)? {
+            let entry = entry.at(folder)?;
+            let file = PathBuf::from(entry.file_name());
+            let is_save = file
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("rvdata2"))
+                && file
+                    .file_stem()
+                    .and_then(|stem| stem.to_str())
+                    .is_some_and(|stem| {
+                        stem.get(..4)
+                            .is_some_and(|prefix| prefix.eq_ignore_ascii_case("save"))
+                            && stem.get(4..).is_some_and(|slot| {
+                                !slot.is_empty() && slot.bytes().all(|byte| byte.is_ascii_digit())
+                            })
+                    });
+            if is_save && entry.file_type().at(&entry.path())?.is_file() {
+                files.push(file);
+            }
+        }
+        files.sort();
+        Ok(files)
     }
 
     pub fn list(&self) -> Result<Vec<Backup>> {
@@ -80,11 +122,11 @@ impl SaveVault {
         self.create_if_changed(BackupKind::BeforeRestore)?;
 
         let source = self.backups.join(id);
-        let restored = relative_files(&source)?;
+        let restored = self.files_in(&source)?;
         for file in &restored {
             copy_into(&source.join(file), &self.saves.join(file))?;
         }
-        for file in relative_files(&self.saves)? {
+        for file in self.files_in(&self.saves)? {
             if !restored.contains(&file) {
                 remove_file(&self.saves.join(file))?;
             }
@@ -109,7 +151,7 @@ impl SaveVault {
         if !folder.is_dir() {
             return Ok(None);
         }
-        let files = relative_files(&folder)?;
+        let files = self.files_in(&folder)?;
         let bytes = files
             .iter()
             .filter_map(|file| fs::metadata(folder.join(file)).ok())
@@ -125,7 +167,7 @@ impl SaveVault {
     }
 
     fn store(&self, kind: BackupKind) -> Result<Option<Backup>> {
-        let files = relative_files(&self.saves)?;
+        let files = self.files_in(&self.saves)?;
         if files.is_empty() {
             return Ok(None);
         }
@@ -158,8 +200,8 @@ impl SaveVault {
             return Ok(false);
         };
         let folder = self.backups.join(newest.id);
-        let files = relative_files(&self.saves)?;
-        if files != relative_files(&folder)? {
+        let files = self.files_in(&self.saves)?;
+        if files != self.files_in(&folder)? {
             return Ok(false);
         }
         for file in files {
@@ -228,6 +270,27 @@ mod tests {
         vault.restore(&safety.id).unwrap();
         assert_eq!(temp.read("save/file1.rpgsave"), b"new");
         assert_eq!(temp.read("save/file2.rpgsave"), b"added");
+    }
+
+    #[test]
+    fn vx_ace_restores_save_slots_without_touching_game_files() {
+        let temp = TempFolder::new();
+        let vault = SaveVault::new(temp.path().to_owned(), temp.path().join("backups")).vx_ace();
+        temp.write("Save01.rvdata2", b"old");
+        temp.write("Game.rgss3a", b"archive");
+        temp.write("Other.rvdata2", b"game data");
+        temp.write("Data/Save99.rvdata2", b"mod data");
+        let backup = vault.create().unwrap();
+        assert_eq!(backup.files, 1);
+
+        temp.write("Save01.rvdata2", b"new");
+        temp.write("SAVE02.RVDATA2", b"extra");
+        vault.restore(&backup.id).unwrap();
+        assert_eq!(temp.read("Save01.rvdata2"), b"old");
+        assert!(!temp.path().join("SAVE02.RVDATA2").exists());
+        assert_eq!(temp.read("Game.rgss3a"), b"archive");
+        assert_eq!(temp.read("Other.rvdata2"), b"game data");
+        assert_eq!(temp.read("Data/Save99.rvdata2"), b"mod data");
     }
 
     #[test]

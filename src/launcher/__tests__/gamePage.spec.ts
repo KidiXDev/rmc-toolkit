@@ -166,6 +166,23 @@ describe('GamePage', () => {
     }
   })
 
+  it('shows the in-game VX Ace shortcut when a running game is opened on Live', async () => {
+    useNavigation().openGame('game-1', 'live')
+    const game = makeGame({ engine: 'VX Ace', makerVersion: null, session: activeSession })
+    const wrapper = mount(GamePage, { props: { game } })
+    await flushPromises()
+
+    try {
+      expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('Overview')
+      expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).not.toContain('Live')
+      expect(wrapper.text()).toContain('RPG Maker VX Ace')
+      expect(wrapper.text()).toContain('Ctrl+C')
+      expect(wrapper.text()).not.toContain('Ctrl+S')
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
   it('keeps the user on GamePage when pressing Escape inside Notes', async () => {
     const navigation = useNavigation()
     navigation.openGame('game-1')

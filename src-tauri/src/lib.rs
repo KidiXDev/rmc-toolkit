@@ -15,6 +15,7 @@ mod processes;
 mod saves;
 mod scan;
 mod tracker;
+mod vx_ace;
 
 #[cfg(test)]
 mod testing;

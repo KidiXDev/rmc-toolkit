@@ -2,7 +2,7 @@ import type { GameInfo } from './api'
 import type { GameTabId } from './navigation'
 
 export function isLiveReady(game: GameInfo): boolean {
-  return game.status === 'current' && game.session !== null
+  return game.engine !== 'VX Ace' && game.status === 'current' && game.session !== null
 }
 
 export function cheatNeedsAttention(game: GameInfo): boolean {
@@ -10,7 +10,7 @@ export function cheatNeedsAttention(game: GameInfo): boolean {
 }
 
 export function defaultGameTab(game: GameInfo, requested?: GameTabId): GameTabId {
-  if (requested) return requested
+  if (requested && !(requested === 'live' && game.engine === 'VX Ace')) return requested
   return isLiveReady(game) ? 'live' : 'overview'
 }
 

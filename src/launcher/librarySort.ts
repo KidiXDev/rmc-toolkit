@@ -35,7 +35,8 @@ export const PLAY_STATUS_LABELS: Record<PlayStatus, string> = {
 const FILTER_TESTS: Record<Filter, (game: GameInfo) => boolean> = {
   all: () => true,
   favorites: (game) => game.favorite,
-  installed: (game) => game.status === 'current' || game.status === 'outdated',
+  installed: (game) =>
+    game.status === 'current' || game.status === 'outdated' || game.status === 'standalone',
   updates: (game) => game.status === 'outdated',
 }
 

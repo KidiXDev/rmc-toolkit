@@ -29,11 +29,11 @@ impl fmt::Display for Error {
             Self::NotFound(path) => write!(formatter, "{} no longer exists.", path.display()),
             Self::NotAGame => write!(
                 formatter,
-                "No RPG Maker MV or MZ game was found here. Choose the folder that contains the game's exe file."
+                "No RPG Maker MV, MZ or VX Ace game was found here. Choose the folder that contains the game's exe file."
             ),
             Self::PackedGame => write!(
                 formatter,
-                "This game is packed into a single file, so it cannot be changed. Only games with a visible js folder are supported."
+                "This game has no supported RPG Maker files. MV and MZ games need a visible js folder."
             ),
             Self::UnknownGame => write!(formatter, "This game is no longer in the library."),
             Self::UnknownBackup => write!(formatter, "This backup no longer exists."),

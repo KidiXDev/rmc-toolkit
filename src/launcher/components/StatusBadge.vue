@@ -8,6 +8,7 @@ const { status } = defineProps<{ status: CheatStatus }>()
 const BADGES: Record<CheatStatus, { text: string; tone: string } | null> = {
   current: { text: 'Cheats on', tone: 'bg-primary text-onfill' },
   outdated: { text: 'Update', tone: 'bg-accent text-onfill' },
+  standalone: { text: 'Cheats on', tone: 'bg-primary text-onfill' },
   missing: { text: 'Not found', tone: 'bg-panel text-ink' },
   notInstalled: null,
 }

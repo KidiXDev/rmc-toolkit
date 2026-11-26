@@ -41,8 +41,9 @@ const library = useLibrary()
 const navigation = useNavigation()
 
 const requestedTab = () => (navigation.page.name === 'game' ? navigation.page.tab : undefined)
+const tabs = computed(() => TABS.filter((tab) => game.engine !== 'VX Ace' || tab.id !== 'live'))
 const activeId = ref<GameTabId>(defaultGameTab(game, requestedTab()))
-const active = computed(() => TABS.find((tab) => tab.id === activeId.value) ?? TABS[0])
+const active = computed(() => tabs.value.find((tab) => tab.id === activeId.value) ?? TABS[0])
 
 const isLiveTab = computed(() => active.value.id === 'live' && game.status !== 'missing')
 
@@ -57,7 +58,7 @@ function openTab(tab: GameTabId) {
 }
 
 watch(requestedTab, (tab) => {
-  if (tab) activeId.value = tab
+  if (tab) activeId.value = defaultGameTab(game, tab)
 })
 
 function goBack(event: KeyboardEvent) {
@@ -163,7 +164,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', goBack))
     >
       <div class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Game">
         <UiButton
-          v-for="tab in TABS"
+          v-for="tab in tabs"
           :key="tab.id"
           role="tab"
           :aria-selected="tab.id === active.id"

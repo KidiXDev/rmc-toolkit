@@ -5,7 +5,7 @@ use std::sync::{Mutex, MutexGuard};
 use crate::activity::ActivityLog;
 use crate::error::{Error, Result};
 use crate::files::now_millis;
-use crate::game::Game;
+use crate::game::{Engine, Game};
 use crate::library::{Entry, Library};
 use crate::process::{ProcessTree, split_arguments};
 use crate::processes::ProcessTable;
@@ -21,6 +21,7 @@ pub struct Launcher {
     activity: Mutex<ActivityLog>,
     processes: Mutex<ProcessTable>,
     last_checkpoint: Mutex<u64>,
+    game_changes: Mutex<()>,
     stays_in_tray: AtomicBool,
     developer_mode: AtomicBool,
 }
@@ -37,6 +38,7 @@ impl Launcher {
             activity: Mutex::new(activity),
             processes: Mutex::new(ProcessTable::new()),
             last_checkpoint: Mutex::default(),
+            game_changes: Mutex::default(),
             stays_in_tray: AtomicBool::new(false),
             developer_mode: AtomicBool::new(false),
             data,
@@ -71,7 +73,17 @@ impl Launcher {
     }
 
     pub fn vault(&self, game: &Game, id: &str) -> SaveVault {
-        SaveVault::new(game.save_folder(), self.backup_folder(id))
+        let vault = SaveVault::new(game.save_folder(), self.backup_folder(id));
+        if game.engine == Engine::VxAce {
+            vault.vx_ace()
+        } else {
+            vault
+        }
+    }
+
+    pub fn edit_cheats(&self, id: &str, edit: impl FnOnce(&Game) -> Result<()>) -> Result<()> {
+        let _guard = lock(&self.game_changes);
+        edit(&self.idle_game(id)?)
     }
 
     pub fn executable(&self, entry: &Entry, game: &Game) -> Option<PathBuf> {
@@ -112,6 +124,7 @@ impl Launcher {
     }
 
     pub fn start(&self, id: &str) -> Result<()> {
+        let _guard = lock(&self.game_changes);
         let game = self.idle_game(id)?;
         let entry = self.entry(id)?;
         let program = self.executable(&entry, &game).ok_or(Error::NoExecutable)?;

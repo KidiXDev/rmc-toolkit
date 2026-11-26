@@ -3049,6 +3049,7 @@ dependencies = [
 name = "rmc-toolkit"
 version = "2.0.0"
 dependencies = [
+ "flate2",
  "process-wrap",
  "serde",
  "serde_json",
@@ -3059,6 +3060,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-single-instance",
  "tauri-plugin-window-state",
+ "tempfile",
 ]
 
 [[package]]

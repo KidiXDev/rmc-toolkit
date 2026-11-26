@@ -26,6 +26,7 @@ pub enum CheatStatus {
     NotInstalled,
     Current,
     Outdated,
+    Standalone,
     Missing,
 }
 
@@ -83,6 +84,7 @@ fn describe(launcher: &Launcher, entry: Entry) -> GameInfo {
         Some(InstallState::NotInstalled) => (CheatStatus::NotInstalled, None),
         Some(InstallState::Current(version)) => (CheatStatus::Current, Some(version)),
         Some(InstallState::Outdated(version)) => (CheatStatus::Outdated, Some(version)),
+        Some(InstallState::Standalone) => (CheatStatus::Standalone, None),
         None => (CheatStatus::Missing, None),
     };
     let maker_version = game.as_ref().and_then(Game::maker_version);
@@ -243,7 +245,7 @@ pub async fn game_cover(launcher: State<'_, Launcher>, id: String) -> Result<Res
 
 #[tauri::command]
 pub async fn install_cheats(launcher: State<'_, Launcher>, id: String) -> Result<()> {
-    patcher::install(&launcher.idle_game(&id)?)
+    launcher.edit_cheats(&id, patcher::install)
 }
 
 #[tauri::command]
@@ -252,7 +254,7 @@ pub async fn uninstall_cheats(
     id: String,
     remove_settings: bool,
 ) -> Result<()> {
-    patcher::uninstall(&launcher.idle_game(&id)?, remove_settings)
+    launcher.edit_cheats(&id, |game| patcher::uninstall(game, remove_settings))
 }
 
 #[tauri::command]
@@ -277,7 +279,11 @@ pub async fn live_game(
     if !launcher.is_running(&id) {
         return Ok(None);
     }
-    let folder = launcher.game(&id)?.settings_folder();
+    let game = launcher.game(&id)?;
+    if game.engine == Engine::VxAce {
+        return Ok(None);
+    }
+    let folder = game.settings_folder();
     Ok(tauri::async_runtime::spawn_blocking(move || {
         live::request(&folder, session.as_deref(), action.as_ref(), query.as_ref())
     })

@@ -24,6 +24,8 @@ pub enum Engine {
     Mv,
     #[serde(rename = "MZ")]
     Mz,
+    #[serde(rename = "VX Ace")]
+    VxAce,
 }
 
 #[derive(Debug)]
@@ -46,6 +48,12 @@ impl Game {
     }
 
     pub fn in_folder(folder: &Path) -> Option<Self> {
+        if crate::vx_ace::script_target(folder).is_some() {
+            return Some(Self {
+                engine: Engine::VxAce,
+                content: folder.to_owned(),
+            });
+        }
         [folder.to_owned(), folder.join("www")]
             .into_iter()
             .find_map(Self::at_content)
@@ -83,10 +91,17 @@ impl Game {
     }
 
     pub fn save_folder(&self) -> PathBuf {
+        if self.engine == Engine::VxAce {
+            return self.content.clone();
+        }
         self.content.join("save")
     }
 
     pub fn title(&self) -> String {
+        if self.engine == Engine::VxAce {
+            return crate::vx_ace::ini_value(self.root(), "Title")
+                .unwrap_or_else(|| name_of(self.root()));
+        }
         self.system_text("gameTitle")
             .unwrap_or_else(|| name_of(self.root()))
     }
@@ -110,6 +125,7 @@ impl Game {
         let core = match self.engine {
             Engine::Mv => "rpg_core.js",
             Engine::Mz => "rmmz_core.js",
+            Engine::VxAce => return None,
         };
         let script = fs::read(self.content.join("js").join(core)).ok()?;
         let script = String::from_utf8_lossy(&script);
@@ -163,7 +179,8 @@ fn assigned_text(rest: &str) -> Option<String> {
 pub fn root_of(content: &Path) -> &Path {
     let is_www = content
         .file_name()
-        .is_some_and(|name| name.eq_ignore_ascii_case("www"));
+        .is_some_and(|name| name.eq_ignore_ascii_case("www"))
+        && crate::vx_ace::script_target(content).is_none();
     content.parent().filter(|_| is_www).unwrap_or(content)
 }
 

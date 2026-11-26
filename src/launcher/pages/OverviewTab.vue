@@ -53,7 +53,10 @@ const longestSessionMs = computed(() =>
 const latestBackup = computed(() => backups.value[0] ?? null)
 const isBusy = computed(() => library.busyIds.has(game.id))
 const hasUnsavedNotes = computed(() => notesDraft.value !== game.notes)
-const hasCheatsInstalled = computed(() => game.status === 'current' || game.status === 'outdated')
+const hasCheatsInstalled = computed(
+  () => game.status === 'current' || game.status === 'outdated' || game.status === 'standalone',
+)
+const quickKeys = computed(() => (game.engine === 'VX Ace' ? QUICK_KEYS.slice(0, 1) : QUICK_KEYS))
 
 watch(
   () => game.notes,
@@ -225,7 +228,7 @@ watch(
           </p>
           <div v-if="hasCheatsInstalled" class="mt-3 grid grid-cols-2 gap-1.5">
             <div
-              v-for="item in QUICK_KEYS"
+              v-for="item in quickKeys"
               :key="item.keys"
               class="grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-control border-hairline bg-paper px-2 py-1 text-xs gap-1.5"
             >
@@ -238,7 +241,7 @@ watch(
               Open live controls
             </UiButton>
             <UiButton
-              v-else-if="game.status !== 'current'"
+              v-else-if="game.status === 'notInstalled' || game.status === 'outdated'"
               variant="primary"
               :disabled="game.session !== null || isBusy"
               @click="library.install(game)"
